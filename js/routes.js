@@ -12,16 +12,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.port = exports.app = void 0;
+exports.app = void 0;
 const express_1 = __importDefault(require("express"));
 const users_1 = require("./users");
-const app = (0, express_1.default)();
-exports.app = app;
+const serverApp_1 = require("./serverApp");
+Object.defineProperty(exports, "app", { enumerable: true, get: function () { return serverApp_1.app; } });
 // parser le json
-app.use(express_1.default.json());
+serverApp_1.app.use(express_1.default.json());
 // route pour ajouter un utilisateur
 // curl -X POST "http://localhost:3000/user" -H "Content-Type:application/json" -d '{"firstName": "xxxxxxx11111", "lastName": "yyyyy1111", "email": "zzzz111111"}'       
-app.post('/user', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+serverApp_1.app.post('/user', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield (0, users_1.addUser)(req.body);
         res.status(201);
@@ -34,15 +34,11 @@ app.post('/user', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 }));
 // route pour verifier le login
-// success (l'utilisateur existe)
-// curl -X POST "http://localhost:3000/login" -H "Content-Type:application/json" -d '{"firstName": "xxxxxxx11111", "lastName": "yyyyy1111", "email": "zzzz111111"}'
-// fail (l'utilisateur n'existe pas) mais pas d'erreur !!!
-// curl -X POST "http://localhost:3000/login" -H "Content-Type:application/json" -d '{"firstName": "xxx11111", "lastName": "yyyyy1111", "email": "zzzz111111"}'
-app.post('/login', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+serverApp_1.app.post('/login', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield (0, users_1.checkLogin)(req.body);
         res.status(200);
-        res.send("Connexion réussie"); // TODO : retourner un token et une page de redirection
+        res.send("Connexion réussie"); // TODO : (APRES TOUS LES AUTRES TODO) retourner un token et une page de redirection 
     }
     catch (error) {
         console.error;
