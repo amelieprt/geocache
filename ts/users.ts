@@ -23,7 +23,7 @@ async function checkLogin(id: any) {
     // Check no sql injection
 
     // trouver un utilisateur par son firstName et son lastName
-    const r = await collection.findOne({ firstName: id.firstName, lastName: id.lastName }, { projection: { firstName: 1, lastName: 1, _id: 0 } });
+    const r = await collection.findOne({ firstName: id.firstName, lastName: id.lastName, login: id.login, password: id.password }, { projection: { firstName: 1, lastName: 1, _id: 0 } });
 
     // si l'utilisateur n'existe pas alors on leve une exception
     if (!r)
