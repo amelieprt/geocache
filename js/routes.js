@@ -15,8 +15,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.toto = exports.app = void 0;
 const express_1 = __importDefault(require("express"));
 const users_1 = require("./users");
+const cachette_1 = require("./cachette");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const dotenv_1 = __importDefault(require("dotenv"));
+const path_1 = __importDefault(require("path"));
 dotenv_1.default.config();
 const secretKey = process.env.JWT_SECRET;
 if (!secretKey) {
@@ -50,9 +52,20 @@ function verifyToken(req, res, next) {
 app.get('/success', (req, res) => {
     res.send("Inscription réussie ! Bienvenue !");
 });
+app.get('/successlogin', (req, res) => {
+    res.send("Connexion réussie ! Bienvenue !");
+});
+// route pour servir le formulaire d'inscription
+app.get('/register', (req, res) => {
+    res.sendFile(path_1.default.join(__dirname, '../views/register.html'));
+});
+// route pour servir le formulaire de connexion
+app.get('/login', (req, res) => {
+    res.sendFile(path_1.default.join(__dirname, '../views/login.html'));
+});
 // route pour ajouter un utilisateur
-// curl -X POST "http://localhost:3000/signup" -H "Content-Type:application/json" -d '{"firstName": "xxxxxxx11111", "lastName": "yyyyy1111", "email": "zzzz111111"}'    
-// curl -X POST "http://localhost:3000/signup" -H "Content-Type:application/json" -d '{"login": "amelie", "password": "coucou"}'   
+// curl -X POST "http://localhost:3000/signup" -H "Content-Type:application/json" -d '{"firstName": "xxxxxxx11111", "lastName": "yyyyy1111", "email": "zzzz111111"}'
+// curl -X POST "http://localhost:3000/signup" -H "Content-Type:application/json" -d '{"login": "amelie", "password": "coucou"}'
 app.post('/signup', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = yield (0, users_1.addUser)(req.body);
@@ -76,7 +89,8 @@ app.post('/login', (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     try {
         yield (0, users_1.checkLogin)(req.body);
         const token = jsonwebtoken_1.default.sign({ id: req.body.id, email: req.body.email }, secretKey, { expiresIn: '1h' });
-        res.status(200).json({ message: "Connexion réussie", token });
+        // res.status(200).json({ message: "Connexion réussie", token });
+        res.status(200).redirect('/successlogin');
         res.send("Connexion réussie"); // TODO : (APRES TOUS LES AUTRES TODO) retourner un token JWT et une page de redirection 
     }
     catch (error) {
@@ -87,9 +101,39 @@ app.post('/login', (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         res.status(500).render('error', { message: "Connexion échouée " + errorMessage });
         // res.send("Connexion échouée " + error); // TODO : retourner une page d'erreur
     }
-    app.get('/token', verifyToken, (req, res) => {
-        res.send("Cette route est protégée et vous avez un token valide !");
-    });
+    // Tester la route /cachette pour ajoutez des nouvelles cachettes
+    app.get('/addcachette', verifyToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const newCachette = {
+                NameCachette: req.query.NameCachette,
+                description: req.query.description,
+                latitude: req.query.latitude,
+                longitude: req.query.longitude,
+                difficulte: req.query.difficulte,
+                mdp: req.query.mdp
+            };
+            yield (0, cachette_1.addcachette)(newCachette);
+            // const cachette = await addcachette(req.body);
+            res.status(201).send("Cachette ajoutée");
+            // const token = jwt.sign({ id: user._id, email: user.email }, secretKey, { expiresIn: '1h' });
+            // Requete pour tester le redirection succes
+            // curl -X GET "http://localhost:3000/success"
+            // res.status(201).redirect('/success');
+        }
+        catch (error) {
+            console.error;
+            const errorMessage = (error instanceof Error) ? error.message : "Unknown error";
+            res.status(500).render('error', { message: "Création cachette échouée " + errorMessage });
+            // res.send("Inscription échouée " + error); // TODO : retourner une page d'erreur
+        }
+    }));
 }));
+// Vérifier si le Token est valide
+// curl -X GET "http://localhost:3000/token" -H "Authorization: Bearer verifyToken"
+// Validation du token
+// curl -X POST "http://localhost:3000/login" -H "Content-Type:application/json" -d '{"login": "amelie", "password": "coucou"}'
+app.get('/token', verifyToken, (req, res) => {
+    res.send("Cette route est protégée et vous avez un token valide !");
+});
 const toto = app;
 exports.toto = toto;
