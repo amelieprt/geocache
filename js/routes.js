@@ -48,6 +48,7 @@ function verifyToken(req, res, next) {
         return res.status(401).send("Token invalide");
     }
 }
+///////////SUCCES//////////////////////
 // route pour le succès de l'inscription
 app.get('/success', (req, res) => {
     res.send("Inscription réussie ! Bienvenue !");
@@ -56,6 +57,18 @@ app.get('/success', (req, res) => {
 app.get('/successlogin', (req, res) => {
     res.send("Connexion réussie ! Bienvenue !");
 });
+// route pour le succès de la suppression d'utilisateur
+app.get('/successdelete-user', (req, res) => {
+    res.sendFile(path_1.default.join(__dirname, '../views/delete-user.html'));
+});
+// redirect pour creer une cachette
+app.get('/succescreate-cachette', (req, res) => {
+    res.send("Création de cachette réussie ! Bienvenue !");
+});
+app.get('/succesdelete-cachette', (req, res) => {
+    res.send("Suppression de cachette réussie ! Bienvenue !");
+});
+//////////////////////FORMULAIRE//////////////////////////
 // route pour servir le formulaire d'inscription
 app.get('/register', (req, res) => {
     res.sendFile(path_1.default.join(__dirname, '../views/register.html'));
@@ -68,18 +81,18 @@ app.get('/login', (req, res) => {
 app.get('/delete-user', (req, res) => {
     res.sendFile(path_1.default.join(__dirname, '../views/delete-user.html'));
 });
-// route pour le succès de la suppression d'utilisateur
-app.get('/successdelete-user', (req, res) => {
-    res.sendFile(path_1.default.join(__dirname, '../views/delete-user.html'));
-});
+///////////// CACHETTE FORMULAIRE /////////////
 // route pour servir le formulaire de création de cachette
 app.get('/create-cachette', (req, res) => {
     res.sendFile(path_1.default.join(__dirname, '../views/create-cachette.html'));
 });
-// redirect pour creer une cachette
-app.get('/succescreate-cachette', (req, res) => {
-    res.send("Création de cachette réussie ! Bienvenue !");
+app.get('/read-cachette', (req, res) => {
+    res.sendFile(path_1.default.join(__dirname, '../views/read-cachette.html'));
 });
+app.get('/delete-cachette', (req, res) => {
+    res.sendFile(path_1.default.join(__dirname, '../views/delete-cachette.html'));
+});
+//////////////////////////USERS////////////////////////////
 // route pour ajouter un utilisateur
 // curl -X POST "http://localhost:3000/signup" -H "Content-Type:application/json" -d '{"firstName": "xxxxxxx11111", "lastName": "yyyyy1111", "email": "zzzz111111"}'
 // curl -X POST "http://localhost:3000/signup" -H "Content-Type:application/json" -d '{"login": "amelie", "password": "coucou"}'
@@ -136,6 +149,7 @@ app.post('/delete-user', (req, res) => __awaiter(void 0, void 0, void 0, functio
         res.status(500).render('error', { message: "Suppression de l'utilisateur échouée " + errorMessage });
     }
 }));
+///////////////////CACHETTE/////////////////////////
 // Tester la route /cachette pour ajoutez des nouvelles cachettes
 // ajout de Middleware pour vérifier le token
 app.use(express_1.default.json());
