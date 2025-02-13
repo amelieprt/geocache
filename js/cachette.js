@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.addcachette = addcachette;
 exports.deleteCachette = deleteCachette;
 exports.readCachette = readCachette;
+exports.updateCachette = updateCachette;
 exports.checkCachette = checkCachette;
 const serverDB_1 = require("./serverDB");
 // Ajout d'un utilisateur avec une veriication préalable
@@ -51,6 +52,18 @@ function readCachette(name) {
             throw new Error("Cachette non trouvée");
         }
         return cachette;
+    });
+}
+// Mise à jour d'une cachette par son nom
+function updateCachette(name, updatedCachette) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const collection = serverDB_1.db.collection('Cachette'); // COLLECTION NAME
+        // Update the cachette document
+        const result = yield collection.updateOne({ nom: name }, { $set: updatedCachette });
+        if (result.matchedCount === 0) {
+            throw new Error("Cachette non trouvée");
+        }
+        console.log(`Cachette with name ${name} updated`);
     });
 }
 // Test si la cachette sont biens dans la base de données

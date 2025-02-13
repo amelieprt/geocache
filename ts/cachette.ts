@@ -45,6 +45,20 @@ async function readCachette(name: string) {
     return cachette;
 }
 
+// Mise à jour d'une cachette par son nom
+async function updateCachette(name: string, updatedCachette: any) {
+    const collection = db.collection('Cachette'); // COLLECTION NAME
+
+    // Update the cachette document
+    const result = await collection.updateOne(
+        { nom: name },
+        { $set: updatedCachette }
+    );
+    if (result.matchedCount === 0) {
+        throw new Error("Cachette non trouvée");
+    }
+    console.log(`Cachette with name ${name} updated`);
+}
 
 // Test si la cachette sont biens dans la base de données
 async function checkCachette(id: any) {
@@ -61,4 +75,4 @@ async function checkCachette(id: any) {
         throw new Error("Cachette non trouvé");
 }
 
-export { addcachette, deleteCachette, readCachette, checkCachette };
+export { addcachette, deleteCachette, readCachette, updateCachette, checkCachette };

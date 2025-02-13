@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.toto = exports.app = void 0;
 const express_1 = __importDefault(require("express"));
+const method_override_1 = __importDefault(require("method-override"));
 const users_1 = require("./users");
 const cachette_1 = require("./cachette");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
@@ -48,7 +49,7 @@ function verifyToken(req, res, next) {
         return res.status(401).send("Token invalide");
     }
 }
-///////////SUCCES//////////////////////
+///////////SUCCES USER//////////////////////
 // route pour le succès de l'inscription
 app.get('/success', (req, res) => {
     res.send("Inscription réussie ! Bienvenue !");
@@ -61,12 +62,17 @@ app.get('/successlogin', (req, res) => {
 app.get('/successdelete-user', (req, res) => {
     res.sendFile(path_1.default.join(__dirname, '../views/delete-user.html'));
 });
+////////SUCES CACHETTE//////////////////////
 // redirect pour creer une cachette
 app.get('/succescreate-cachette', (req, res) => {
     res.send("Création de cachette réussie ! Bienvenue !");
 });
 app.get('/succesdelete-cachette', (req, res) => {
     res.send("Suppression de cachette réussie ! Bienvenue !");
+});
+// redirect pour mettre à jour une cachette
+app.get('/successupdate-cachette', (req, res) => {
+    res.send("Mise à jour de la cachette réussie ! Bienvenue !");
 });
 //////////////////////FORMULAIRE//////////////////////////
 // route pour servir le formulaire d'inscription
@@ -91,6 +97,10 @@ app.get('/read-cachette', (req, res) => {
 });
 app.get('/delete-cachette', (req, res) => {
     res.sendFile(path_1.default.join(__dirname, '../views/delete-cachette.html'));
+});
+// route pour servir le formulaire de mise à jour de cachette
+app.get('/update-cachette', (req, res) => {
+    res.sendFile(path_1.default.join(__dirname, '../views/update-cachette.html'));
 });
 //////////////////////////USERS////////////////////////////
 // route pour ajouter un utilisateur
@@ -211,6 +221,32 @@ app.post('/delete-cachette', (req, res) => __awaiter(void 0, void 0, void 0, fun
         console.error;
         const errorMessage = (error instanceof Error) ? error.message : "Unknown error";
         res.status(500).render('error', { message: "Suppression de la cachette échouée " + errorMessage });
+    }
+}));
+// Middleware pour permettre les méthodes PUT et DELETE dans les formulaires HTML
+app.use((0, method_override_1.default)('_method'));
+app.post('/update-cachette', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { nom, description, longitude, latitude, difficulte, mdp } = req.body;
+        console.log("Requête reçue pour mise à jour :", req.body);
+        if (!nom) {
+            return res.status(400).render('error', { message: "Le nom de la cachette est requis." });
+        }
+        const updatedCachette = {
+            description,
+            longitude,
+            latitude,
+            difficulte,
+            mdp
+        };
+        yield (0, cachette_1.updateCachette)(nom, updatedCachette);
+        console.log("Cachette mise à jour :", nom);
+        res.status(200).redirect('/successupdate-cachette');
+    }
+    catch (error) {
+        console.error(error);
+        const errorMessage = (error instanceof Error) ? error.message : "Unknown error";
+        res.status(500).render('error', { message: "Mise à jour de la cachette échouée " + errorMessage });
     }
 }));
 // Vérifier si le Token est valide

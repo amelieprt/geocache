@@ -1,6 +1,7 @@
 import express from "express";
+import methodOverride from "method-override";
 import { addUser, checkLogin, deleteUser } from "./users";
-import { addcachette, deleteCachette, readCachette, checkCachette } from "./cachette";
+import { addcachette, deleteCachette, readCachette, updateCachette, checkCachette } from "./cachette";
 import jwt from "jsonwebtoken";
 import { port } from './serverApp';
 import dotenv from "dotenv";
@@ -38,7 +39,7 @@ function verifyToken(req: any, res: any, next: any) {
     }
 }
 
-///////////SUCCES//////////////////////
+///////////SUCCES USER//////////////////////
 
 // route pour le succès de l'inscription
 app.get('/success', (req, res) => {
@@ -54,6 +55,8 @@ app.get('/successdelete-user', (req, res) => {
     res.sendFile(path.join(__dirname, '../views/delete-user.html'));
 });
 
+////////SUCES CACHETTE//////////////////////
+
 // redirect pour creer une cachette
 app.get('/succescreate-cachette', (req, res) => {
     res.send("Création de cachette réussie ! Bienvenue !");
@@ -61,6 +64,11 @@ app.get('/succescreate-cachette', (req, res) => {
 
 app.get('/succesdelete-cachette', (req, res) => {
     res.send("Suppression de cachette réussie ! Bienvenue !");
+});
+
+// redirect pour mettre à jour une cachette
+app.get('/successupdate-cachette', (req, res) => {
+    res.send("Mise à jour de la cachette réussie ! Bienvenue !");
 });
 
 //////////////////////FORMULAIRE//////////////////////////
@@ -92,6 +100,11 @@ app.get('/read-cachette', (req, res) => {
 
 app.get('/delete-cachette', (req, res) => {
     res.sendFile(path.join(__dirname, '../views/delete-cachette.html'));
+});
+
+// route pour servir le formulaire de mise à jour de cachette
+app.get('/update-cachette', (req, res) => {
+    res.sendFile(path.join(__dirname, '../views/update-cachette.html'));
 });
 
 //////////////////////////USERS////////////////////////////
@@ -237,6 +250,34 @@ app.post('/delete-cachette', async (req, res) => {
     }
 });
 
+// Middleware pour permettre les méthodes PUT et DELETE dans les formulaires HTML
+app.use(methodOverride('_method'));
+app.post('/update-cachette', async (req, res) => {
+    try {
+        const { nom, description, longitude, latitude, difficulte, mdp } = req.body;
+        console.log("Requête reçue pour mise à jour :", req.body);
+
+        if (!nom) {
+            return res.status(400).render('error', { message: "Le nom de la cachette est requis." });
+        }
+        const updatedCachette = {
+            description,
+            longitude,
+            latitude,
+            difficulte,
+            mdp
+        };
+
+        await updateCachette(nom, updatedCachette);
+        console.log("Cachette mise à jour :", nom);
+
+        res.status(200).redirect('/successupdate-cachette');
+    } catch (error) {
+        console.error(error);
+        const errorMessage = (error instanceof Error) ? error.message : "Unknown error";
+        res.status(500).render('error', { message: "Mise à jour de la cachette échouée " + errorMessage });
+    }
+});
 
 // Vérifier si le Token est valide
 // curl -X GET "http://localhost:3000/token" -H "Authorization: Bearer verifyToken"
