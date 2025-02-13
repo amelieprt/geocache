@@ -5,14 +5,6 @@ async function addcachette(newCachette: any) {
 
     const collection = db.collection('Cachette'); // COLLECTION NAME
 
-    db.cachette.insertOne({
-        NameCachette: "Cachette1",
-        description: "Description de la cachette",
-        latitude: 48.8566,
-        longitude: 2.3522,
-        difficulte: 3,
-        mdp: "password"
-    })
 
     // Insert the new user document
     const result = await collection.insertOne(newCachette);

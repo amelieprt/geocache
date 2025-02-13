@@ -16,14 +16,6 @@ const serverDB_1 = require("./serverDB");
 function addcachette(newCachette) {
     return __awaiter(this, void 0, void 0, function* () {
         const collection = serverDB_1.db.collection('Cachette'); // COLLECTION NAME
-        serverDB_1.db.cachette.insertOne({
-            NameCachette: "Cachette1",
-            description: "Description de la cachette",
-            latitude: 48.8566,
-            longitude: 2.3522,
-            difficulte: 3,
-            mdp: "password"
-        });
         // Insert the new user document
         const result = yield collection.insertOne(newCachette);
         console.log(`New cachette created with the following id: ${result.insertedId}`);

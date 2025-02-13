@@ -52,6 +52,7 @@ function verifyToken(req, res, next) {
 app.get('/success', (req, res) => {
     res.send("Inscription réussie ! Bienvenue !");
 });
+// route pour le succès de la connexion
 app.get('/successlogin', (req, res) => {
     res.send("Connexion réussie ! Bienvenue !");
 });
@@ -62,6 +63,14 @@ app.get('/register', (req, res) => {
 // route pour servir le formulaire de connexion
 app.get('/login', (req, res) => {
     res.sendFile(path_1.default.join(__dirname, '../views/login.html'));
+});
+// route pour servir le formulaire de création de cachette
+app.get('/create-cachette', (req, res) => {
+    res.sendFile(path_1.default.join(__dirname, '../views/create-cachette.html'));
+});
+// redirect pour creer une cachette
+app.get('/succescreate-cachette', (req, res) => {
+    res.send("Création de cachette réussie ! Bienvenue !");
 });
 // route pour ajouter un utilisateur
 // curl -X POST "http://localhost:3000/signup" -H "Content-Type:application/json" -d '{"firstName": "xxxxxxx11111", "lastName": "yyyyy1111", "email": "zzzz111111"}'
@@ -101,32 +110,33 @@ app.post('/login', (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         res.status(500).render('error', { message: "Connexion échouée " + errorMessage });
         // res.send("Connexion échouée " + error); // TODO : retourner une page d'erreur
     }
-    // Tester la route /cachette pour ajoutez des nouvelles cachettes
-    app.get('/addcachette', verifyToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        try {
-            const newCachette = {
-                NameCachette: req.query.NameCachette,
-                description: req.query.description,
-                latitude: req.query.latitude,
-                longitude: req.query.longitude,
-                difficulte: req.query.difficulte,
-                mdp: req.query.mdp
-            };
-            yield (0, cachette_1.addcachette)(newCachette);
-            // const cachette = await addcachette(req.body);
-            res.status(201).send("Cachette ajoutée");
-            // const token = jwt.sign({ id: user._id, email: user.email }, secretKey, { expiresIn: '1h' });
-            // Requete pour tester le redirection succes
-            // curl -X GET "http://localhost:3000/success"
-            // res.status(201).redirect('/success');
+}));
+// Tester la route /cachette pour ajoutez des nouvelles cachettes
+// ajout de Middleware pour vérifier le token
+app.use(express_1.default.json());
+app.use(express_1.default.urlencoded({ extended: true }));
+app.post('/create-cachette', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        console.log("Requête reçue :", req.body);
+        const { nom, description, longitude, latitude, difficulte, mdp } = req.body;
+        if (!nom || !description || !longitude || !latitude || !difficulte || !mdp) {
+            return res.status(400).render('error', { message: "Tous les champs sont requis." });
         }
-        catch (error) {
-            console.error;
-            const errorMessage = (error instanceof Error) ? error.message : "Unknown error";
-            res.status(500).render('error', { message: "Création cachette échouée " + errorMessage });
-            // res.send("Inscription échouée " + error); // TODO : retourner une page d'erreur
-        }
-    }));
+        const nouvelleCachette = yield (0, cachette_1.addcachette)({
+            nom,
+            description,
+            longitude,
+            latitude,
+            difficulte,
+            mdp
+        });
+        res.status(201).redirect('/succescreate-cachette');
+    }
+    catch (error) {
+        console.error(error);
+        const errorMessage = (error instanceof Error) ? error.message : "Erreur inconnue";
+        res.status(500).render('error', { message: "Création de la cachette échouée : " + errorMessage });
+    }
 }));
 // Vérifier si le Token est valide
 // curl -X GET "http://localhost:3000/token" -H "Authorization: Bearer verifyToken"
