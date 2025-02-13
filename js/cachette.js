@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.addcachette = addcachette;
+exports.deleteCachette = deleteCachette;
 exports.checkCachette = checkCachette;
 const serverDB_1 = require("./serverDB");
 // Ajout d'un utilisateur avec une veriication préalable
@@ -21,11 +22,29 @@ function addcachette(newCachette) {
         console.log(`New cachette created with the following id: ${result.insertedId}`);
     });
 }
-// Test si le login & password d'un utilisateur sont biens dans la base de données
+// Suppression d'une cachette par son nom
+function deleteCachette(name) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const collection = serverDB_1.db.collection('Cachette');
+        // Vérifier si la cachette existe
+        const cachette = yield collection.findOne({ nom: name });
+        console.log("Cachette trouvée :", cachette);
+        if (!cachette) {
+            throw new Error("Cachette non trouvée");
+        }
+        // Supprimer la cachette
+        const result = yield collection.deleteOne({ nom: name });
+        if (result.deletedCount === 0) {
+            throw new Error("Suppression échouée, cachette non trouvée");
+        }
+        console.log(`Cachette avec le nom ${name} supprimée`);
+    });
+}
+// Test si la cachette sont biens dans la base de données
 function checkCachette(id) {
     return __awaiter(this, void 0, void 0, function* () {
         const collection = serverDB_1.db.collection('Cachette'); // COLLECTION NAME
-        // trouver un utilisateur par son firstName et son lastName
+        // trouver une cachette
         const r = yield collection.findOne({
             NameCachette: id.NameCachette, description: id.description,
             latitude: id.latitude, longitude: id.longitude,

@@ -11,13 +11,34 @@ async function addcachette(newCachette: any) {
     console.log(`New cachette created with the following id: ${result.insertedId}`);
 }
 
-// Test si le login & password d'un utilisateur sont biens dans la base de données
+// Suppression d'une cachette par son nom
+async function deleteCachette(name: string) {
+    const collection = db.collection('Cachette');
+
+    // Vérifier si la cachette existe
+    const cachette = await collection.findOne({ nom: name });
+    console.log("Cachette trouvée :", cachette);
+
+    if (!cachette) {
+        throw new Error("Cachette non trouvée");
+    }
+
+    // Supprimer la cachette
+    const result = await collection.deleteOne({ nom: name });
+
+    if (result.deletedCount === 0) {
+        throw new Error("Suppression échouée, cachette non trouvée");
+    }
+
+    console.log(`Cachette avec le nom ${name} supprimée`);
+}
+
+
+
+// Test si la cachette sont biens dans la base de données
 async function checkCachette(id: any) {
     const collection = db.collection('Cachette'); // COLLECTION NAME
-
-
-
-    // trouver un utilisateur par son firstName et son lastName
+    // trouver une cachette
     const r = await collection.findOne({
         NameCachette: id.NameCachette, description: id.description,
         latitude: id.latitude, longitude: id.longitude,
@@ -29,4 +50,4 @@ async function checkCachette(id: any) {
         throw new Error("Cachette non trouvé");
 }
 
-export { addcachette, checkCachette };
+export { addcachette, deleteCachette, checkCachette };

@@ -72,6 +72,14 @@ app.get('/create-cachette', (req, res) => {
 app.get('/succescreate-cachette', (req, res) => {
     res.send("Création de cachette réussie ! Bienvenue !");
 });
+// route pour servir le formulaire de suppression de cachette
+app.get('/delete-cachette', (req, res) => {
+    res.sendFile(path_1.default.join(__dirname, '../views/delete-cachette.html'));
+});
+// redirect pour creer une cachette
+app.get('/succesdelete-cachette', (req, res) => {
+    res.send("Supression de cachette réussie ! Bienvenue !");
+});
 // route pour ajouter un utilisateur
 // curl -X POST "http://localhost:3000/signup" -H "Content-Type:application/json" -d '{"firstName": "xxxxxxx11111", "lastName": "yyyyy1111", "email": "zzzz111111"}'
 // curl -X POST "http://localhost:3000/signup" -H "Content-Type:application/json" -d '{"login": "amelie", "password": "coucou"}'
@@ -136,6 +144,23 @@ app.post('/create-cachette', (req, res) => __awaiter(void 0, void 0, void 0, fun
         console.error(error);
         const errorMessage = (error instanceof Error) ? error.message : "Erreur inconnue";
         res.status(500).render('error', { message: "Création de la cachette échouée : " + errorMessage });
+    }
+}));
+// route pour supprimer une cachette
+app.post('/delete-cachette', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { nom } = req.body;
+        console.log("Nom reçu :", nom);
+        if (!nom) {
+            return res.status(400).render('error', { message: "Le nom de la cachette est requis." });
+        }
+        yield (0, cachette_1.deleteCachette)(nom);
+        res.status(200).redirect('/succesdelete-cachette');
+    }
+    catch (error) {
+        console.error;
+        const errorMessage = (error instanceof Error) ? error.message : "Unknown error";
+        res.status(500).render('error', { message: "Suppression de la cachette échouée " + errorMessage });
     }
 }));
 // Vérifier si le Token est valide

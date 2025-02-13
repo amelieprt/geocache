@@ -1,6 +1,6 @@
 import express from "express";
 import { addUser, checkLogin } from "./users";
-import { addcachette, checkCachette } from "./cachette";
+import { addcachette, deleteCachette, checkCachette } from "./cachette";
 import jwt from "jsonwebtoken";
 import { port } from './serverApp';
 import dotenv from "dotenv";
@@ -68,6 +68,15 @@ app.get('/create-cachette', (req, res) => {
 // redirect pour creer une cachette
 app.get('/succescreate-cachette', (req, res) => {
     res.send("Création de cachette réussie ! Bienvenue !");
+});
+
+// route pour servir le formulaire de suppression de cachette
+app.get('/delete-cachette', (req, res) => {
+    res.sendFile(path.join(__dirname, '../views/delete-cachette.html'));
+});
+// redirect pour creer une cachette
+app.get('/succesdelete-cachette', (req, res) => {
+    res.send("Supression de cachette réussie ! Bienvenue !");
 });
 
 // route pour ajouter un utilisateur
@@ -145,6 +154,29 @@ app.post('/create-cachette', async (req, res) => {
         res.status(500).render('error', { message: "Création de la cachette échouée : " + errorMessage });
     }
 });
+
+
+// route pour supprimer une cachette
+app.post('/delete-cachette', async (req, res) => {
+    try {
+        const { nom } = req.body;
+        console.log("Nom reçu :", nom);
+
+        if (!nom) {
+            return res.status(400).render('error', { message: "Le nom de la cachette est requis." });
+        }
+
+        await deleteCachette(nom);
+
+        res.status(200).redirect('/succesdelete-cachette');
+    } catch (error) {
+        console.error;
+        const errorMessage = (error instanceof Error) ? error.message : "Unknown error";
+        res.status(500).render('error', { message: "Suppression de la cachette échouée " + errorMessage });
+    }
+});
+
+
 // Vérifier si le Token est valide
 // curl -X GET "http://localhost:3000/token" -H "Authorization: Bearer verifyToken"
 
