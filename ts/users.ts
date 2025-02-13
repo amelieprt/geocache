@@ -14,6 +14,7 @@ async function addUser(newUser: any) {
     console.log(`New user created with the following id: ${result.insertedId}`);
 }
 
+
 // Test si le login & password d'un utilisateur sont biens dans la base de données
 async function checkLogin(id: any) {
     const collection = db.collection('users'); // COLLECTION NAME
@@ -30,4 +31,16 @@ async function checkLogin(id: any) {
         throw new Error("Utilisateur non trouvé");
 }
 
-export { addUser, checkLogin };
+// Suppression d'un utilisateur par son login
+async function deleteUser(username: string) {
+    const collection = db.collection('Users'); // COLLECTION NAME
+
+    // Delete the user document
+    const result = await collection.deleteOne({ username: username });
+    if (result.deletedCount === 0) {
+        throw new Error("Utilisateur non trouvé");
+    }
+    console.log(`User with login ${username} deleted`);
+}
+
+export { addUser, deleteUser, checkLogin };

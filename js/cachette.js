@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.addcachette = addcachette;
 exports.deleteCachette = deleteCachette;
+exports.readCachette = readCachette;
 exports.checkCachette = checkCachette;
 const serverDB_1 = require("./serverDB");
 // Ajout d'un utilisateur avec une veriication préalable
@@ -38,6 +39,18 @@ function deleteCachette(name) {
             throw new Error("Suppression échouée, cachette non trouvée");
         }
         console.log(`Cachette avec le nom ${name} supprimée`);
+    });
+}
+// Lecture d'une cachette par son nom
+function readCachette(name) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const collection = serverDB_1.db.collection('Cachette'); // COLLECTION NAME
+        // Find the cachette document
+        const cachette = yield collection.findOne({ NameCachette: name });
+        if (!cachette) {
+            throw new Error("Cachette non trouvée");
+        }
+        return cachette;
     });
 }
 // Test si la cachette sont biens dans la base de données

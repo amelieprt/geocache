@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.addUser = addUser;
+exports.deleteUser = deleteUser;
 exports.checkLogin = checkLogin;
 const serverDB_1 = require("./serverDB");
 // Ajout d'un utilisateur avec une veriication préalable
@@ -36,5 +37,17 @@ function checkLogin(id) {
         // si l'utilisateur n'existe pas alors on leve une exception
         if (!r)
             throw new Error("Utilisateur non trouvé");
+    });
+}
+// Suppression d'un utilisateur par son login
+function deleteUser(username) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const collection = serverDB_1.db.collection('Users'); // COLLECTION NAME
+        // Delete the user document
+        const result = yield collection.deleteOne({ username: username });
+        if (result.deletedCount === 0) {
+            throw new Error("Utilisateur non trouvé");
+        }
+        console.log(`User with login ${username} deleted`);
     });
 }

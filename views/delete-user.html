@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Supprimer un Utilisateur</title>
+</head>
+
+<body>
+    <h1>Supprimer un Utilisateur</h1>
+    <form id="deleteUserForm" action="/delete-user" method="POST">
+        <label for="username">Login de l'utilisateur:</label>
+        <input type="text" id="username" username="username" required><br><br>
+        <button type="submit">Supprimer l'Utilisateur</button>
+    </form>
+    <div id="message"></div>
+</body>
+
+</html>

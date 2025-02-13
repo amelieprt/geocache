@@ -19,8 +19,17 @@ async function insertCachette() {
             latitude: 48.8566,
             longitude: 2.3522,
             difficulte: 3,
-            mdp: "password"
+            mdp: "password",
+
+            NameCachette: "Brasa",
+            description: "Feu",
+            latitude: 48,
+            longitude: 59,
+            difficulte: 1,
+            mdp: "chef"
+
         };
+
 
         const result = await collection.insertOne(newCachette);
         console.log(`New cachette created with the following id: ${result.insertedId}`);

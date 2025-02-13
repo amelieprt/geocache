@@ -1,6 +1,6 @@
 import express from "express";
-import { addUser, checkLogin } from "./users";
-import { addcachette, deleteCachette, checkCachette } from "./cachette";
+import { addUser, checkLogin, deleteUser } from "./users";
+import { addcachette, deleteCachette, readCachette, checkCachette } from "./cachette";
 import jwt from "jsonwebtoken";
 import { port } from './serverApp';
 import dotenv from "dotenv";
@@ -59,6 +59,14 @@ app.get('/register', (req, res) => {
 app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, '../views/login.html'));
 });
+// route pour servir le formulaire de suppression d'utilisateur
+app.get('/delete-user', (req, res) => {
+    res.sendFile(path.join(__dirname, '../views/delete-user.html'));
+});
+// route pour le succès de la suppression d'utilisateur
+app.get('/successdelete-user', (req, res) => {
+    res.sendFile(path.join(__dirname, '../views/delete-user.html'));
+});
 
 // route pour servir le formulaire de création de cachette
 app.get('/create-cachette', (req, res) => {
@@ -70,14 +78,6 @@ app.get('/succescreate-cachette', (req, res) => {
     res.send("Création de cachette réussie ! Bienvenue !");
 });
 
-// route pour servir le formulaire de suppression de cachette
-app.get('/delete-cachette', (req, res) => {
-    res.sendFile(path.join(__dirname, '../views/delete-cachette.html'));
-});
-// redirect pour creer une cachette
-app.get('/succesdelete-cachette', (req, res) => {
-    res.send("Supression de cachette réussie ! Bienvenue !");
-});
 
 // route pour ajouter un utilisateur
 // curl -X POST "http://localhost:3000/signup" -H "Content-Type:application/json" -d '{"firstName": "xxxxxxx11111", "lastName": "yyyyy1111", "email": "zzzz111111"}'
@@ -123,7 +123,25 @@ app.post('/login', async (req, res) => {
         // res.send("Connexion échouée " + error); // TODO : retourner une page d'erreur
     }
 });
+// suprimer un user
+app.post('/delete-user', async (req, res) => {
+    try {
+        const { username } = req.body;
+        console.log("Login reçu :", username);
 
+        if (!username) {
+            return res.status(400).render('error', { message: "Le login de l'utilisateur est requis." });
+        }
+
+        await deleteUser(username);
+
+        res.status(200).redirect('/successdelete-user');
+    } catch (error) {
+        console.error;
+        const errorMessage = (error instanceof Error) ? error.message : "Unknown error";
+        res.status(500).render('error', { message: "Suppression de l'utilisateur échouée " + errorMessage });
+    }
+});
 
 // Tester la route /cachette pour ajoutez des nouvelles cachettes
 // ajout de Middleware pour vérifier le token
@@ -155,6 +173,27 @@ app.post('/create-cachette', async (req, res) => {
     }
 });
 
+// route pour lire une cachette
+// Verifier si lire la cachette fonctionne
+// http://localhost:3000/read-cachette?nom=Cachette1
+app.get('/read-cachette', async (req, res) => {
+    try {
+        const { nom } = req.query;
+        console.log("Nom reçu :", nom);
+
+        if (!nom) {
+            return res.status(400).render('error', { message: "Le nom de la cachette est requis." });
+        }
+
+        const cachette = await readCachette(nom as string);
+
+        res.status(200).json(cachette);
+    } catch (error) {
+        console.error;
+        const errorMessage = (error instanceof Error) ? error.message : "Unknown error";
+        res.status(500).render('error', { message: "Lecture de la cachette échouée " + errorMessage });
+    }
+});
 
 // route pour supprimer une cachette
 app.post('/delete-cachette', async (req, res) => {

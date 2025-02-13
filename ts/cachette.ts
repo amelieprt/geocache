@@ -33,6 +33,17 @@ async function deleteCachette(name: string) {
     console.log(`Cachette avec le nom ${name} supprimée`);
 }
 
+// Lecture d'une cachette par son nom
+async function readCachette(name: string) {
+    const collection = db.collection('Cachette'); // COLLECTION NAME
+
+    // Find the cachette document
+    const cachette = await collection.findOne({ NameCachette: name });
+    if (!cachette) {
+        throw new Error("Cachette non trouvée");
+    }
+    return cachette;
+}
 
 
 // Test si la cachette sont biens dans la base de données
@@ -50,4 +61,4 @@ async function checkCachette(id: any) {
         throw new Error("Cachette non trouvé");
 }
 
-export { addcachette, deleteCachette, checkCachette };
+export { addcachette, deleteCachette, readCachette, checkCachette };
