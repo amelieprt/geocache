@@ -3,13 +3,14 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Inscription</title>
+    <title>Mettre à jour un Utilisateur</title>
 </head>
 
 <body>
-    <h1>Inscription</h1>
-    <form id="registerForm" action="/signup" method="POST">
-        <label for="username">Nom d'utilisateur:</label>
+    <h1>Mettre à jour un Utilisateur</h1>
+    <form id="updateUserForm" action="/update-user" method="POST">
+        <input type="hidden" name="_method" value="PUT">
+        <label for="username">Login de l'utilisateur:</label>
         <input type="text" id="username" name="username" required><br><br>
         <label for="firstName">Prénom:</label>
         <input type="text" id="firstName" name="firstName" required><br><br>
@@ -19,7 +20,7 @@
         <input type="email" id="email" name="email" required><br><br>
         <label for="password">Mot de passe:</label>
         <input type="password" id="password" name="password" required><br><br>
-        <button type="submit">S'inscrire</button>
+        <button type="submit">Mettre à jour l'Utilisateur</button>
     </form>
     <div id="message"></div>
 </body>

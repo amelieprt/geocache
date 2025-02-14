@@ -1,6 +1,6 @@
 import express from "express";
 import methodOverride from "method-override";
-import { addUser, checkLogin, deleteUser } from "./users";
+import { addUser, checkLogin, updateUser, deleteUser } from "./users";
 import { addcachette, deleteCachette, readCachette, updateCachette, checkCachette } from "./cachette";
 import jwt from "jsonwebtoken";
 import { port } from './serverApp';
@@ -55,6 +55,11 @@ app.get('/successdelete-user', (req, res) => {
     res.sendFile(path.join(__dirname, '../views/delete-user.html'));
 });
 
+// redirect pour mettre à jour un utilisateur
+app.get('/successupdate-user', (req, res) => {
+    res.send("Mise à jour de l'utilisateur réussie ! Bienvenue !");
+});
+
 ////////SUCES CACHETTE//////////////////////
 
 // redirect pour creer une cachette
@@ -85,6 +90,11 @@ app.get('/login', (req, res) => {
 // route pour servir le formulaire de suppression d'utilisateur
 app.get('/delete-user', (req, res) => {
     res.sendFile(path.join(__dirname, '../views/delete-user.html'));
+});
+
+// route pour servir le formulaire de mise à jour d'utilisateur
+app.get('/update-user', (req, res) => {
+    res.sendFile(path.join(__dirname, '../views/update-user.html'));
 });
 
 ///////////// CACHETTE FORMULAIRE /////////////
@@ -173,6 +183,33 @@ app.post('/delete-user', async (req, res) => {
     }
 });
 
+// route pour mettre à jour un utilisateur
+app.post('/update-user', async (req, res) => {
+    try {
+        const { login, firstName, lastName, email, password } = req.body;
+        console.log("Requête reçue pour mise à jour :", req.body);
+
+        if (!login) {
+            return res.status(400).render('error', { message: "Le login de l'utilisateur est requis." });
+        }
+        const updatedUser = {
+            firstName,
+            lastName,
+            email,
+            password
+        };
+
+        await updateUser(login, updatedUser);
+        console.log("Utilisateur mis à jour :", login);
+
+        res.status(200).redirect('/successupdate-user');
+    } catch (error) {
+        console.error(error);
+        const errorMessage = (error instanceof Error) ? error.message : "Unknown error";
+        res.status(500).render('error', { message: "Mise à jour de l'utilisateur échouée " + errorMessage });
+    }
+});
+
 
 
 ///////////////////CACHETTE/////////////////////////
@@ -211,9 +248,9 @@ app.post('/create-cachette', async (req, res) => {
 // route pour lire une cachette
 // Verifier si lire la cachette fonctionne
 // http://localhost:3000/read-cachette?nom=Cachette1
-app.get('/read-cachette', async (req, res) => {
+app.post('/read-cachette', async (req, res) => {
     try {
-        const { nom } = req.query;
+        const { nom } = req.body;
         console.log("Nom reçu :", nom);
 
         if (!nom) {

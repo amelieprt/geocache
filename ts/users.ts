@@ -43,4 +43,21 @@ async function deleteUser(username: string) {
     console.log(`User with login ${username} deleted`);
 }
 
-export { addUser, deleteUser, checkLogin };
+
+// Mise à jour d'un utilisateur par son login
+async function updateUser(username: string, updatedUser: any) {
+    const collection = db.collection('Users'); // COLLECTION NAME
+
+    // Update the user document
+    const result = await collection.updateOne(
+        { username: username },
+        { $set: updatedUser }
+    );
+    if (result.matchedCount === 0) {
+        throw new Error("Utilisateur non trouvé");
+    }
+    console.log(`User with login ${username} updated`);
+}
+
+
+export { addUser, deleteUser, updateUser, checkLogin };

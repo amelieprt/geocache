@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.addUser = addUser;
 exports.deleteUser = deleteUser;
+exports.updateUser = updateUser;
 exports.checkLogin = checkLogin;
 const serverDB_1 = require("./serverDB");
 // Ajout d'un utilisateur avec une veriication préalable
@@ -49,5 +50,17 @@ function deleteUser(username) {
             throw new Error("Utilisateur non trouvé");
         }
         console.log(`User with login ${username} deleted`);
+    });
+}
+// Mise à jour d'un utilisateur par son login
+function updateUser(username, updatedUser) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const collection = serverDB_1.db.collection('Users'); // COLLECTION NAME
+        // Update the user document
+        const result = yield collection.updateOne({ username: username }, { $set: updatedUser });
+        if (result.matchedCount === 0) {
+            throw new Error("Utilisateur non trouvé");
+        }
+        console.log(`User with login ${username} updated`);
     });
 }
