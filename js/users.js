@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.addUser = addUser;
 exports.deleteUser = deleteUser;
 exports.updateUser = updateUser;
+exports.readUsers = readUsers;
 exports.checkLogin = checkLogin;
 const serverDB_1 = require("./serverDB");
 // Ajout d'un utilisateur avec une veriication préalable
@@ -62,5 +63,17 @@ function updateUser(username, updatedUser) {
             throw new Error("Utilisateur non trouvé");
         }
         console.log(`User with login ${username} updated`);
+    });
+}
+// Lecture d'une cachette par son nom
+function readUsers(username) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const collection = serverDB_1.db.collection('users'); // COLLECTION NAME
+        // Find the cachette document
+        const users = yield collection.findOne({ username: username });
+        if (!users) {
+            throw new Error("user non trouvée");
+        }
+        return users;
     });
 }

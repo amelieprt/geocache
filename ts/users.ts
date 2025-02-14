@@ -58,6 +58,16 @@ async function updateUser(username: string, updatedUser: any) {
     }
     console.log(`User with login ${username} updated`);
 }
+// Lecture d'une cachette par son nom
+async function readUsers(username: string) {
+    const collection = db.collection('users'); // COLLECTION NAME
 
+    // Find the cachette document
+    const users = await collection.findOne({ username: username });
+    if (!users) {
+        throw new Error("user non trouvée");
+    }
+    return users;
+}
 
-export { addUser, deleteUser, updateUser, checkLogin };
+export { addUser, deleteUser, updateUser, readUsers, checkLogin };

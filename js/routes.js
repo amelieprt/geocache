@@ -49,6 +49,10 @@ function verifyToken(req, res, next) {
         return res.status(401).send("Token invalide");
     }
 }
+// route pour servir la page d'accueil
+app.get('/', (req, res) => {
+    res.sendFile(path_1.default.join(__dirname, '../views/index.html'));
+});
 ///////////SUCCES USER//////////////////////
 // route pour le succès de l'inscription
 app.get('/success', (req, res) => {
@@ -94,6 +98,9 @@ app.get('/delete-user', (req, res) => {
 // route pour servir le formulaire de mise à jour d'utilisateur
 app.get('/update-user', (req, res) => {
     res.sendFile(path_1.default.join(__dirname, '../views/update-user.html'));
+});
+app.get('/read-user', (req, res) => {
+    res.sendFile(path_1.default.join(__dirname, '../views/read-user.html'));
 });
 ///////////// CACHETTE FORMULAIRE /////////////
 // route pour servir le formulaire de création de cachette
@@ -189,6 +196,22 @@ app.post('/update-user', (req, res) => __awaiter(void 0, void 0, void 0, functio
         console.error(error);
         const errorMessage = (error instanceof Error) ? error.message : "Unknown error";
         res.status(500).render('error', { message: "Mise à jour de l'utilisateur échouée " + errorMessage });
+    }
+}));
+app.post('/read-user', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { username } = req.body;
+        console.log("Nom reçu :", username);
+        if (!username) {
+            return res.status(400).render('error', { message: "Le nom de l'utilisateur est requis." });
+        }
+        const cachette = yield (0, users_1.readUsers)(username);
+        res.status(200).json(username);
+    }
+    catch (error) {
+        console.error;
+        const errorMessage = (error instanceof Error) ? error.message : "Unknown error";
+        res.status(500).render('error', { message: "Lecture de l'utilisateur échouée " + errorMessage });
     }
 }));
 ///////////////////CACHETTE/////////////////////////

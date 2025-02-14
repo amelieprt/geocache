@@ -1,6 +1,6 @@
 import express from "express";
 import methodOverride from "method-override";
-import { addUser, checkLogin, updateUser, deleteUser } from "./users";
+import { addUser, checkLogin, updateUser, deleteUser, readUsers } from "./users";
 import { addcachette, deleteCachette, readCachette, updateCachette, checkCachette } from "./cachette";
 import jwt from "jsonwebtoken";
 import { port } from './serverApp';
@@ -39,6 +39,12 @@ function verifyToken(req: any, res: any, next: any) {
     }
 }
 
+// route pour servir la page d'accueil
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../views/index.html'));
+});
+
+
 ///////////SUCCES USER//////////////////////
 
 // route pour le succès de l'inscription
@@ -59,6 +65,8 @@ app.get('/successdelete-user', (req, res) => {
 app.get('/successupdate-user', (req, res) => {
     res.send("Mise à jour de l'utilisateur réussie ! Bienvenue !");
 });
+
+
 
 ////////SUCES CACHETTE//////////////////////
 
@@ -95,6 +103,10 @@ app.get('/delete-user', (req, res) => {
 // route pour servir le formulaire de mise à jour d'utilisateur
 app.get('/update-user', (req, res) => {
     res.sendFile(path.join(__dirname, '../views/update-user.html'));
+});
+
+app.get('/read-user', (req, res) => {
+    res.sendFile(path.join(__dirname, '../views/read-user.html'));
 });
 
 ///////////// CACHETTE FORMULAIRE /////////////
@@ -207,6 +219,25 @@ app.post('/update-user', async (req, res) => {
         console.error(error);
         const errorMessage = (error instanceof Error) ? error.message : "Unknown error";
         res.status(500).render('error', { message: "Mise à jour de l'utilisateur échouée " + errorMessage });
+    }
+});
+
+app.post('/read-user', async (req, res) => {
+    try {
+        const { username } = req.body;
+        console.log("Nom reçu :", username);
+
+        if (!username) {
+            return res.status(400).render('error', { message: "Le nom de l'utilisateur est requis." });
+        }
+
+        const cachette = await readUsers(username as string);
+
+        res.status(200).json(username);
+    } catch (error) {
+        console.error;
+        const errorMessage = (error instanceof Error) ? error.message : "Unknown error";
+        res.status(500).render('error', { message: "Lecture de l'utilisateur échouée " + errorMessage });
     }
 });
 
