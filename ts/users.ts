@@ -24,7 +24,7 @@ async function checkLogin(id: any) {
     // Check no sql injection
 
     // trouver un utilisateur par son firstName et son lastName
-    const r = await collection.findOne({ firstName: id.firstName, lastName: id.lastName, login: id.login, password: id.password }, { projection: { firstName: 1, lastName: 1, _id: 0 } });
+    const r = await collection.findOne({ username: id.username, password: id.password }, { projection: { username: 1, password: 1, _id: 0 } });
 
     // si l'utilisateur n'existe pas alors on leve une exception
     if (!r)
@@ -32,11 +32,12 @@ async function checkLogin(id: any) {
 }
 
 // Suppression d'un utilisateur par son login
-async function deleteUser(username: string) {
-    const collection = db.collection('Users'); // COLLECTION NAME
+async function deleteUser(username: string, password: string) {
+    const collection = db.collection('users'); // COLLECTION NAME
 
     // Delete the user document
-    const result = await collection.deleteOne({ username: username });
+    const result = await collection.deleteOne({ "username": username, "password": password });
+    console.log("result", result)
     if (result.deletedCount === 0) {
         throw new Error("Utilisateur non trouvé");
     }

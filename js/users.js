@@ -35,18 +35,19 @@ function checkLogin(id) {
         // utiliser le login & pass plutot que le firstName & lastName
         // Check no sql injection
         // trouver un utilisateur par son firstName et son lastName
-        const r = yield collection.findOne({ firstName: id.firstName, lastName: id.lastName, login: id.login, password: id.password }, { projection: { firstName: 1, lastName: 1, _id: 0 } });
+        const r = yield collection.findOne({ username: id.username, password: id.password }, { projection: { username: 1, password: 1, _id: 0 } });
         // si l'utilisateur n'existe pas alors on leve une exception
         if (!r)
             throw new Error("Utilisateur non trouvé");
     });
 }
 // Suppression d'un utilisateur par son login
-function deleteUser(username) {
+function deleteUser(username, password) {
     return __awaiter(this, void 0, void 0, function* () {
-        const collection = serverDB_1.db.collection('Users'); // COLLECTION NAME
+        const collection = serverDB_1.db.collection('users'); // COLLECTION NAME
         // Delete the user document
-        const result = yield collection.deleteOne({ username: username });
+        const result = yield collection.deleteOne({ "username": username, "password": password });
+        console.log("result", result);
         if (result.deletedCount === 0) {
             throw new Error("Utilisateur non trouvé");
         }
