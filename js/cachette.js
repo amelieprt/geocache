@@ -43,11 +43,11 @@ function deleteCachette(name) {
     });
 }
 // Lecture d'une cachette par son nom
-function readCachette(name) {
+function readCachette(nom) {
     return __awaiter(this, void 0, void 0, function* () {
         const collection = serverDB_1.db.collection('Cachette'); // COLLECTION NAME
         // Find the cachette document
-        const cachette = yield collection.findOne({ NameCachette: name });
+        const cachette = yield collection.findOne({ nom: nom });
         if (!cachette) {
             throw new Error("Cachette non trouvée");
         }

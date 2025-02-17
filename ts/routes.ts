@@ -146,7 +146,7 @@ app.post('/delete-user', async (req: any, res: any) => {
 
         await deleteUser(username, password);
 
-        res.redirect(200, '/update-user');
+        res.status(200).redirect('/update-user');
     } catch (error) {
         console.error;
         const errorMessage = (error instanceof Error) ? error.message : "Unknown error";
@@ -175,7 +175,7 @@ app.post('/update-user', async (req: any, res: any) => {
         await updateUser(username, updatedUser);
         console.log("Utilisateur mis à jour :", username);
 
-        res.redirect(200, '/create-cachette');
+        res.status(200).redirect('/create-cachette');
     } catch (error) {
         console.error(error);
         const errorMessage = (error instanceof Error) ? error.message : "Unknown error";
@@ -234,7 +234,7 @@ app.post('/create-cachette', async (req: any, res: any) => {
             mdp
         });
 
-        res.redirect(201, '/succescreate-cachette');
+        res.status(201).redirect('/read-cachette');
     } catch (error) {
         console.error(error);
         const errorMessage = (error instanceof Error) ? error.message : "Erreur inconnue";
@@ -280,7 +280,7 @@ app.post('/delete-cachette', async (req: any, res: any) => {
 
         await deleteCachette(nom);
 
-        res.redirect(200, '/succesdelete-cachette');
+        res.status(200).redirect('/create-cachette');
     } catch (error) {
         console.error;
         const errorMessage = (error instanceof Error) ? error.message : "Unknown error";
@@ -311,7 +311,7 @@ app.post('/update-cachette', async (req: any, res: any) => {
         await updateCachette(nom, updatedCachette);
         console.log("Cachette mise à jour :", nom);
 
-        res.redirect(200, '/create-cachette');
+        res.status(200).redirect('/read-cachette');
     } catch (error) {
         console.error(error);
         const errorMessage = (error instanceof Error) ? error.message : "Unknown error";

@@ -135,7 +135,7 @@ app.post('/delete-user', (req, res) => __awaiter(void 0, void 0, void 0, functio
             return res.json({ "message": "Login et Password requis." });
         }
         yield (0, users_1.deleteUser)(username, password);
-        res.redirect(200, '/update-user');
+        res.status(200).redirect('/update-user');
     }
     catch (error) {
         console.error;
@@ -161,7 +161,7 @@ app.post('/update-user', (req, res) => __awaiter(void 0, void 0, void 0, functio
         };
         yield (0, users_1.updateUser)(username, updatedUser);
         console.log("Utilisateur mis à jour :", username);
-        res.redirect(200, '/create-cachette');
+        res.status(200).redirect('/create-cachette');
     }
     catch (error) {
         console.error(error);
@@ -209,7 +209,7 @@ app.post('/create-cachette', (req, res) => __awaiter(void 0, void 0, void 0, fun
             difficulte,
             mdp
         });
-        res.redirect(201, '/succescreate-cachette');
+        res.status(201).redirect('/read-cachette');
     }
     catch (error) {
         console.error(error);
@@ -249,7 +249,7 @@ app.post('/delete-cachette', (req, res) => __awaiter(void 0, void 0, void 0, fun
             return res.json({ message: "Le nom de la cachette est requis." });
         }
         yield (0, cachette_1.deleteCachette)(nom);
-        res.redirect(200, '/succesdelete-cachette');
+        res.status(200).redirect('/create-cachette');
     }
     catch (error) {
         console.error;
@@ -277,7 +277,7 @@ app.post('/update-cachette', (req, res) => __awaiter(void 0, void 0, void 0, fun
         };
         yield (0, cachette_1.updateCachette)(nom, updatedCachette);
         console.log("Cachette mise à jour :", nom);
-        res.redirect(200, '/create-cachette');
+        res.status(200).redirect('/read-cachette');
     }
     catch (error) {
         console.error(error);
