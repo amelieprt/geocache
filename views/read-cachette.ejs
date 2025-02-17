@@ -36,6 +36,14 @@
     <h1>GéoCache</h1>
     <div id="map"></div>
     <button class="create-cachette-btn" onclick="window.location.href='/create-cachette'">Créer une nouvelle cachette</button>
+    <div class="radius-selector">
+        <label for="radius">Afficher les cachettes dans un rayon de :</label>
+        <select id="radius" onchange="updateCachettes()">
+            <option value="10">10 km</option>
+            <option value="100">100 km</option>
+            <option value="all">Toutes</option>
+        </select>
+    </div>
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script>
         var map = L.map('map').setView([0, 0], 2);
@@ -43,6 +51,19 @@
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
+
+        // Fonction pour calculer la distance entre deux points (en km)
+        function getDistance(lat1, lon1, lat2, lon2) {
+            var R = 6371; // Rayon de la Terre en km
+            var dLat = (lat2 - lat1) * Math.PI / 180;
+            var dLon = (lon2 - lon1) * Math.PI / 180;
+            var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            var d = R * c;
+            return d;
+        }
 
         // Ajouter la position de l'utilisateur en direct
         if (navigator.geolocation) {
@@ -55,12 +76,20 @@
                     .openPopup();
 
                 map.setView([userLat, userLng], 13);
-            }, function(error) {
-                console.error("Erreur de géolocalisation : ", error);
-            });
-        } else {
-            console.error("La géolocalisation n'est pas supportée par ce navigateur.");
-        }
+
+
+                 // Définir un périmètre autour de l'utilisateur
+                function updateCachettes() {
+                    var radius = document.getElementById('radius').value;
+                    if (radius !== 'all') {
+                        radius = parseInt(radius);
+                        var circle = L.circle([userLat, userLng], {
+                            color: 'blue',
+                            fillColor: '#30f',
+                            fillOpacity: 0.2,
+                            radius: radius * 1000 // convertir en mètres
+                        }).addTo(map);
+                    }
 
         <% cachette.forEach(function(cachette) { %>
             L.marker([<%= cachette.latitude %>, <%= cachette.longitude %>]).addTo(map)
@@ -77,7 +106,18 @@
                     '<button type="submit">Supprimer</button>' +
                     '</form>')
                 .openPopup();
+            
         <% }); %>
+
+}
+        // Initialiser l'affichage des cachettes
+        updateCachettes();
+    }, function (error) {
+                console.error("Erreur de géolocalisation : ", error);
+            });
+        } else {
+            console.error("La géolocalisation n'est pas supportée par ce navigateur.");
+        }
     </script>
 </body>
 
