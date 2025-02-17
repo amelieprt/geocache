@@ -39,10 +39,13 @@ function verifyToken(req: any, res: any, next: any) {
     }
 }
 
-// route pour servir la page d'accueil
+// route pour servir la page d'accueil avec la carte Leaflet
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../views/index.html'));
 });
+
+// Serve static files for Leaflet
+app.use('/leaflet', express.static(path.join(__dirname, '../node_modules/leaflet/dist')));
 
 
 //////////////////////FORMULAIRE//////////////////////////
@@ -258,7 +261,8 @@ app.post('/read-cachette', async (req: any, res: any) => {
 
         const cachette = await readCachette(nom as string);
 
-        res.status(200).json(cachette);
+        // res.status(200).json(cachette);
+        res.render('read-cachette', { cachette });
     } catch (error) {
         console.error;
         const errorMessage = (error instanceof Error) ? error.message : "Unknown error";

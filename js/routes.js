@@ -50,10 +50,12 @@ function verifyToken(req, res, next) {
         return res.status(401).send("Token invalide");
     }
 }
-// route pour servir la page d'accueil
+// route pour servir la page d'accueil avec la carte Leaflet
 app.get('/', (req, res) => {
     res.sendFile(path_1.default.join(__dirname, '../views/index.html'));
 });
+// Serve static files for Leaflet
+app.use('/leaflet', express_1.default.static(path_1.default.join(__dirname, '../node_modules/leaflet/dist')));
 //////////////////////FORMULAIRE//////////////////////////
 // route pour servir le formulaire d'inscription
 app.get('/register', (req, res) => {
@@ -230,7 +232,8 @@ app.post('/read-cachette', (req, res) => __awaiter(void 0, void 0, void 0, funct
             return res.json({ message: "Le nom de la cachette est requis." });
         }
         const cachette = yield (0, cachette_1.readCachette)(nom);
-        res.status(200).json(cachette);
+        // res.status(200).json(cachette);
+        res.render('read-cachette', { cachette });
     }
     catch (error) {
         console.error;
