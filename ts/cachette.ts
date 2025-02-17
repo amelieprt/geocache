@@ -45,6 +45,14 @@ async function readCachette(nom: string) {
     return cachette;
 }
 
+// AFFICHER TT LES CACHETTES ////
+
+async function readAllCachettes() {
+    const collection = db.collection('Cachette'); // COLLECTION NAME
+    const cachettes = await collection.find({}).toArray();
+    return cachettes;
+}
+
 // Mise à jour d'une cachette par son nom
 async function updateCachette(name: string, updatedCachette: any) {
     const collection = db.collection('Cachette'); // COLLECTION NAME
@@ -75,4 +83,4 @@ async function checkCachette(id: any) {
         throw new Error("Cachette non trouvé");
 }
 
-export { addcachette, deleteCachette, readCachette, updateCachette, checkCachette };
+export { addcachette, deleteCachette, readCachette, updateCachette, checkCachette, readAllCachettes };

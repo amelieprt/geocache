@@ -2,7 +2,7 @@ import express from "express";
 import methodOverride from "method-override";
 import { checkLogin, updateUser, deleteUser, readUsers } from "./users";
 const { addUser } = require('./users');
-import { addcachette, deleteCachette, readCachette, updateCachette, checkCachette } from "./cachette";
+import { addcachette, deleteCachette, readCachette, updateCachette, checkCachette, readAllCachettes } from "./cachette";
 import jwt from "jsonwebtoken";
 import { port } from './serverApp';
 import dotenv from "dotenv";
@@ -258,8 +258,12 @@ app.post('/read-cachette', async (req: any, res: any) => {
             res.status(400);
             return res.json({ message: "Le nom de la cachette est requis." });
         }
+        //////////// AFFICHER UNE CACHETTE //////////////
+        // const cachette = await readCachette(nom as string);
 
-        const cachette = await readCachette(nom as string);
+        /////// AFFICHER TT LES CACHETTES ////////////////
+        const cachette = await readAllCachettes();
+
 
         // res.status(200).json(cachette);
         res.render('read-cachette', { cachette });

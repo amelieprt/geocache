@@ -14,6 +14,7 @@ exports.deleteCachette = deleteCachette;
 exports.readCachette = readCachette;
 exports.updateCachette = updateCachette;
 exports.checkCachette = checkCachette;
+exports.readAllCachettes = readAllCachettes;
 const serverDB_1 = require("./serverDB");
 // Ajout d'un utilisateur avec une veriication préalable
 function addcachette(newCachette) {
@@ -52,6 +53,14 @@ function readCachette(nom) {
             throw new Error("Cachette non trouvée");
         }
         return cachette;
+    });
+}
+// AFFICHER TT LES CACHETTES ////
+function readAllCachettes() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const collection = serverDB_1.db.collection('Cachette'); // COLLECTION NAME
+        const cachettes = yield collection.find({}).toArray();
+        return cachettes;
     });
 }
 // Mise à jour d'une cachette par son nom

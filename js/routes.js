@@ -231,7 +231,10 @@ app.post('/read-cachette', (req, res) => __awaiter(void 0, void 0, void 0, funct
             res.status(400);
             return res.json({ message: "Le nom de la cachette est requis." });
         }
-        const cachette = yield (0, cachette_1.readCachette)(nom);
+        //////////// AFFICHER UNE CACHETTE //////////////
+        // const cachette = await readCachette(nom as string);
+        /////// AFFICHER TT LES CACHETTES ////////////////
+        const cachette = yield (0, cachette_1.readAllCachettes)();
         // res.status(200).json(cachette);
         res.render('read-cachette', { cachette });
     }
