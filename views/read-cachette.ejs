@@ -44,6 +44,24 @@
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
+        // Ajouter la position de l'utilisateur en direct
+        if (navigator.geolocation) {
+            navigator.geolocation.watchPosition(function(position) {
+                var userLat = position.coords.latitude;
+                var userLng = position.coords.longitude;
+
+                var userMarker = L.marker([userLat, userLng]).addTo(map)
+                    .bindPopup('Vous êtes ici')
+                    .openPopup();
+
+                map.setView([userLat, userLng], 13);
+            }, function(error) {
+                console.error("Erreur de géolocalisation : ", error);
+            });
+        } else {
+            console.error("La géolocalisation n'est pas supportée par ce navigateur.");
+        }
+
         <% cachette.forEach(function(cachette) { %>
             L.marker([<%= cachette.latitude %>, <%= cachette.longitude %>]).addTo(map)
                 .bindPopup('<%= cachette.nom %><br><%= cachette.description %><br><br>' +
