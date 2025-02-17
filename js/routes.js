@@ -114,7 +114,7 @@ app.post('/login', (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         yield (0, users_1.checkLogin)(req.body);
         const token = jsonwebtoken_1.default.sign({ username: req.body.username, password: req.body.password }, secretKey, { expiresIn: '1h' });
         // res.status(200).json({ message: "Connexion réussie", token });
-        res.status(200).redirect('/create-cachette'); // TODO : (APRES TOUS LES AUTRES TODO) retourner un token JWT et une page de redirection 
+        res.status(200).redirect('/read-user'); // TODO : (APRES TOUS LES AUTRES TODO) retourner un token JWT et une page de redirection 
     }
     catch (error) {
         console.error;
@@ -135,7 +135,7 @@ app.post('/delete-user', (req, res) => __awaiter(void 0, void 0, void 0, functio
             return res.json({ "message": "Login et Password requis." });
         }
         yield (0, users_1.deleteUser)(username, password);
-        res.redirect(200, '/successdelete-user');
+        res.redirect(200, '/update-user');
     }
     catch (error) {
         console.error;

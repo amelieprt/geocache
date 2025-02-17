@@ -36,7 +36,7 @@ async function deleteUser(username: string, password: string) {
     const collection = db.collection('users'); // COLLECTION NAME
 
     // Delete the user document
-    const result = await collection.deleteOne({ "username": username, "password": password });
+    const result = await collection.deleteOne({ username: username, password: password });
     console.log("result", result)
     if (result.deletedCount === 0) {
         throw new Error("Utilisateur non trouvé");

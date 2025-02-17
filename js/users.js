@@ -46,7 +46,7 @@ function deleteUser(username, password) {
     return __awaiter(this, void 0, void 0, function* () {
         const collection = serverDB_1.db.collection('users'); // COLLECTION NAME
         // Delete the user document
-        const result = yield collection.deleteOne({ "username": username, "password": password });
+        const result = yield collection.deleteOne({ username: username, password: password });
         console.log("result", result);
         if (result.deletedCount === 0) {
             throw new Error("Utilisateur non trouvé");
