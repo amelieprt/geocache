@@ -6,7 +6,7 @@
     "test": "jest",
     "build": "tsc",
     "build:watch": "tsc -w",
-    "start": "nodemon ./js/main.js"
+    "start": "nodemon ./js/serverApp.js"
   },
   "keywords": [],
   "author": "",

@@ -1,6 +1,7 @@
 import express from "express";
 import methodOverride from "method-override";
-import { addUser, checkLogin, updateUser, deleteUser, readUsers } from "./users";
+import { checkLogin, updateUser, deleteUser, readUsers } from "./users";
+const { addUser } = require('./users');
 import { addcachette, deleteCachette, readCachette, updateCachette, checkCachette } from "./cachette";
 import jwt from "jsonwebtoken";
 import { port } from './serverApp';
@@ -12,7 +13,6 @@ const secretKey = process.env.JWT_SECRET;
 if (!secretKey) {
     throw new Error("La clé secrète JWT n'est pas définie !");
 }
-
 const app = express();
 // const secretKey = "secretKey"; //A vériifer si c'est la bonne clé
 // parser le json
@@ -44,45 +44,6 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../views/index.html'));
 });
 
-
-///////////SUCCES USER//////////////////////
-
-// route pour le succès de l'inscription
-app.get('/success', (req, res) => {
-    res.send("Inscription réussie ! Bienvenue !");
-});
-
-// route pour le succès de la connexion
-app.get('/successlogin', (req, res) => {
-    res.send("Connexion réussie ! Bienvenue !");
-});
-// route pour le succès de la suppression d'utilisateur
-app.get('/successdelete-user', (req, res) => {
-    res.sendFile(path.join(__dirname, '../views/delete-user.html'));
-});
-
-// redirect pour mettre à jour un utilisateur
-app.get('/successupdate-user', (req, res) => {
-    res.send("Mise à jour de l'utilisateur réussie ! Bienvenue !");
-});
-
-
-
-////////SUCES CACHETTE//////////////////////
-
-// redirect pour creer une cachette
-app.get('/succescreate-cachette', (req, res) => {
-    res.send("Création de cachette réussie ! Bienvenue !");
-});
-
-app.get('/succesdelete-cachette', (req, res) => {
-    res.send("Suppression de cachette réussie ! Bienvenue !");
-});
-
-// redirect pour mettre à jour une cachette
-app.get('/successupdate-cachette', (req, res) => {
-    res.send("Mise à jour de la cachette réussie ! Bienvenue !");
-});
 
 //////////////////////FORMULAIRE//////////////////////////
 
@@ -131,28 +92,22 @@ app.get('/update-cachette', (req, res) => {
 
 //////////////////////////USERS////////////////////////////
 
-// route pour ajouter un utilisateur
-// curl -X POST "http://localhost:3000/signup" -H "Content-Type:application/json" -d '{"login": "amelie", "password": "coucou"}'
-
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.post('/signup', async (req, res) => {
     try {
+        const { username, firstName, lastName, email, password } = req.body;
         console.log("Données reçues pour l'inscription :", req.body);
-        await addUser(req.body);
-        console.log("Utilisateur ajouté :", req.body);
 
-        // const token = jwt.sign({ id: user._id, email: user.email }, secretKey, { expiresIn: '1h' });
-        // Requete pour tester le redirection succes
-        // curl -X GET "http://localhost:3000/success"
-        res.redirect(201, '/success');
-        // res.send("Inscription réussie"); // TODO : retourner un token et une page de redirection
+        const newUser = { username, firstName, lastName, email, password };
+        const result = await addUser(newUser);
+        console.log("Utilisateur ajouté :", result);
 
-    }
-    catch (error) {
-        console.error;
+        res.status(201).redirect('/login');
+    } catch (error) {
+        console.error("Erreur lors de l'inscription :", error);
         const errorMessage = (error instanceof Error) ? error.message : "Unknown error";
-        res.json({ "message": "Inscription échouée " + errorMessage });
-        res.status(500);
-        // res.send("Inscription échouée " + error); // TODO : retourner une page d'erreur
+        res.status(500).render('error', { message: "Inscription échouée " + errorMessage });
     }
 });
 
@@ -164,7 +119,7 @@ app.post('/login', async (req, res) => {
         await checkLogin(req.body);
         const token = jwt.sign({ username: req.body.username, password: req.body.password }, secretKey, { expiresIn: '1h' });
         // res.status(200).json({ message: "Connexion réussie", token });
-        res.redirect(200, '/successlogin'); // TODO : (APRES TOUS LES AUTRES TODO) retourner un token JWT et une page de redirection 
+        res.status(200).redirect('/create-cachette'); // TODO : (APRES TOUS LES AUTRES TODO) retourner un token JWT et une page de redirection 
     }
     catch (error) {
         console.error;
@@ -201,33 +156,33 @@ app.post('/delete-user', async (req: any, res: any) => {
 });
 
 // // route pour mettre à jour un utilisateur
-// app.post('/update-user', async (req, res) => {
-//     try {
-//         const { username, firstName, lastName, email, password } = req.body;
-//         console.log("Requête reçue pour mise à jour :", req.body);
+app.post('/update-user', async (req: any, res: any) => {
+    try {
+        const { username, firstName, lastName, email, password } = req.body;
+        console.log("Requête reçue pour mise à jour :", req.body);
 
-//         if (!username) {
-//             res.status(400);
-//             return res.json({ message: "Le login de l'utilisateur est requis." });
-//         }
-//         const updatedUser = {
-//             firstName,
-//             lastName,
-//             email,
-//             password
-//         };
+        if (!username) {
+            res.status(400);
+            return res.json({ message: "Le login de l'utilisateur est requis." });
+        }
+        const updatedUser = {
+            firstName,
+            lastName,
+            email,
+            password
+        };
 
-//         await updateUser(username, updatedUser);
-//         console.log("Utilisateur mis à jour :", username);
+        await updateUser(username, updatedUser);
+        console.log("Utilisateur mis à jour :", username);
 
-//         res.redirect(200, '/successupdate-user');
-//     } catch (error) {
-//         console.error(error);
-//         const errorMessage = (error instanceof Error) ? error.message : "Unknown error";
-//         res.status(500);
-//         res.json({ "message": "Connexion échouée " + errorMessage });
-//     }
-// });
+        res.redirect(200, '/create-cachette');
+    } catch (error) {
+        console.error(error);
+        const errorMessage = (error instanceof Error) ? error.message : "Unknown error";
+        res.status(500);
+        res.json({ "message": "Connexion échouée " + errorMessage });
+    }
+});
 
 app.post('/read-user', async (req: any, res: any) => {
     try {
@@ -313,57 +268,57 @@ app.post('/read-cachette', async (req: any, res: any) => {
 });
 
 // // route pour supprimer une cachette
-// app.post('/delete-cachette', async (req, res) => {
-//     try {
-//         const { nom } = req.body;
-//         console.log("Nom reçu :", nom);
+app.post('/delete-cachette', async (req: any, res: any) => {
+    try {
+        const { nom } = req.body;
+        console.log("Nom reçu :", nom);
 
-//         if (!nom) {
-//             res.status(400);
-//             return res.json({ message: "Le nom de la cachette est requis." });
-//         }
+        if (!nom) {
+            res.status(400);
+            return res.json({ message: "Le nom de la cachette est requis." });
+        }
 
-//         await deleteCachette(nom);
+        await deleteCachette(nom);
 
-//         res.redirect(200,'/succesdelete-cachette');
-//     } catch (error) {
-//         console.error;
-//         const errorMessage = (error instanceof Error) ? error.message : "Unknown error";
-//         res.status(500)
-//         res.json({ message: "Suppression de la cachette échouée " + errorMessage });
-//     }
-// });
+        res.redirect(200, '/succesdelete-cachette');
+    } catch (error) {
+        console.error;
+        const errorMessage = (error instanceof Error) ? error.message : "Unknown error";
+        res.status(500)
+        res.json({ message: "Suppression de la cachette échouée " + errorMessage });
+    }
+});
 
 // // Middleware pour permettre les méthodes PUT et DELETE dans les formulaires HTML
-// app.use(methodOverride('_method'));
-// app.post('/update-cachette', async (req, res) => {
-//     try {
-//         const { nom, description, longitude, latitude, difficulte, mdp } = req.body;
-//         console.log("Requête reçue pour mise à jour :", req.body);
+app.use(methodOverride('_method'));
+app.post('/update-cachette', async (req: any, res: any) => {
+    try {
+        const { nom, description, longitude, latitude, difficulte, mdp } = req.body;
+        console.log("Requête reçue pour mise à jour :", req.body);
 
-//         if (!nom) {
-//             res.status(400);
-//             return res.json({ message: "Le nom de la cachette est requis." });
-//         }
-//         const updatedCachette = {
-//             description,
-//             longitude,
-//             latitude,
-//             difficulte,
-//             mdp
-//         };
+        if (!nom) {
+            res.status(400);
+            return res.json({ message: "Le nom de la cachette est requis." });
+        }
+        const updatedCachette = {
+            description,
+            longitude,
+            latitude,
+            difficulte,
+            mdp
+        };
 
-//         await updateCachette(nom, updatedCachette);
-//         console.log("Cachette mise à jour :", nom);
+        await updateCachette(nom, updatedCachette);
+        console.log("Cachette mise à jour :", nom);
 
-//         res.redirect(200,'/successupdate-cachette');
-//     } catch (error) {
-//         console.error(error);
-//         const errorMessage = (error instanceof Error) ? error.message : "Unknown error";
-//         res.status(500);
-//         res.json({ message: "Mise à jour de la cachette échouée " + errorMessage });
-//     }
-// });
+        res.redirect(200, '/create-cachette');
+    } catch (error) {
+        console.error(error);
+        const errorMessage = (error instanceof Error) ? error.message : "Unknown error";
+        res.status(500);
+        res.json({ message: "Mise à jour de la cachette échouée " + errorMessage });
+    }
+});
 
 // // Vérifier si le Token est valide
 // // curl -X GET "http://localhost:3000/token" -H "Authorization: Bearer verifyToken"
@@ -372,9 +327,9 @@ app.post('/read-cachette', async (req: any, res: any) => {
 // // curl -X POST "http://localhost:3000/login" -H "Content-Type:application/json" -d '{"login": "amelie", "password": "coucou"}'
 
 
-// app.get('/token', verifyToken, (req: any, res: any) => {
-//     res.send("Cette route est protégée et vous avez un token valide !");
-// });
+app.get('/token', verifyToken, (req: any, res: any) => {
+    res.send("Cette route est protégée et vous avez un token valide !");
+});
 
 
 const toto = app;
