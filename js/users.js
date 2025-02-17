@@ -57,7 +57,7 @@ function deleteUser(username, password) {
 // Mise à jour d'un utilisateur par son login
 function updateUser(username, updatedUser) {
     return __awaiter(this, void 0, void 0, function* () {
-        const collection = serverDB_1.db.collection('Users'); // COLLECTION NAME
+        const collection = serverDB_1.db.collection('users'); // COLLECTION NAME
         // Update the user document
         const result = yield collection.updateOne({ username: username }, { $set: updatedUser });
         if (result.matchedCount === 0) {

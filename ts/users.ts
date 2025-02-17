@@ -47,7 +47,7 @@ async function deleteUser(username: string, password: string) {
 
 // Mise à jour d'un utilisateur par son login
 async function updateUser(username: string, updatedUser: any) {
-    const collection = db.collection('Users'); // COLLECTION NAME
+    const collection = db.collection('users'); // COLLECTION NAME
 
     // Update the user document
     const result = await collection.updateOne(
