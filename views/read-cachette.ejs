@@ -4,59 +4,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Détails de la Cachette</title>
+    <title>Détails des Cachettes</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <style>
         #map {
             height: 600px;
             width: 100%;
         }
+        .leaflet-bottom.leaflet-right {
+            position: relative;
+        }
+        .create-cachette-btn {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            z-index: 1000;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .create-cachette-btn:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 
 <body>
-<!-- ///////////AFFICHER UNE CACHETTE ////////////////// -->
-    <!-- <h1>Détails de la Cachette</h1>
-    <p>Nom: <%= cachette.nom %>
-    </p>
-    <p>Description: <%= cachette.description %>
-    </p>
-    <p>Longitude: <%= cachette.longitude %>
-    </p>
-    <p>Latitude: <%= cachette.latitude %>
-    </p>
-    <p>Difficulté: <%= cachette.difficulte %>
-    </p> -->
+    <h1>GéoCache</h1>
     <div id="map"></div>
+    <button class="create-cachette-btn" onclick="window.location.href='/create-cachette'">Créer une nouvelle cachette</button>
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script>
-
-
-/////////////////Fonction avec une lecture //////////////////////
-        // var map = L.map('map').setView([<%= cachette.latitude %>, <%= cachette.longitude %>], 13);
-
-        // L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        //     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        // }).addTo(map);
-
-        // L.marker([<%= cachette.latitude %>, <%= cachette.longitude %>]).addTo(map)
-        //     .bindPopup('<%= cachette.nom %><br><%= cachette.description %>')
-        //     .openPopup();
-
-
-
         var map = L.map('map').setView([0, 0], 2);
 
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(map);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
 
-        <% cachette.forEach(function (cachette) { %>
-                L.marker([<%= cachette.latitude %>, <%= cachette.longitude %>]).addTo(map)
-                    .bindPopup('<%= cachette.nom %><br><%= cachette.description %>')
-                    .openPopup();
+        <% cachette.forEach(function(cachette) { %>
+            L.marker([<%= cachette.latitude %>, <%= cachette.longitude %>]).addTo(map)
+                .bindPopup('<%= cachette.nom %><br><%= cachette.description %><br><br>' +
+                    '<b>Longitude:</b> <%= cachette.longitude %><br>' +
+                    '<b>Latitude:</b> <%= cachette.latitude %><br>' +
+                    '<b>Difficulté:</b> <%= cachette.difficulte %><br><br>' +
+                    '<form action="/update-cachette" method="GET" style="display:inline;">' +
+                    '<input type="hidden" name="nom" value="<%= cachette.nom %>">' +
+                    '<button type="submit">Mettre à jour</button>' +
+                    '</form>' +
+                    '<form action="/delete-cachette" method="POST" style="display:inline;">' +
+                    '<input type="hidden" name="nom" value="<%= cachette.nom %>">' +
+                    '<button type="submit">Supprimer</button>' +
+                    '</form>')
+                .openPopup();
         <% }); %>
     </script>
 </body>
 
-</html> 
+</html>
