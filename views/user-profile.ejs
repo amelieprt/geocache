@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil de l'utilisateur</title>
+</head>
+
+<body>
+    <h1>Profil de l'utilisateur</h1>
+    <p><strong>Nom d'utilisateur:</strong>
+        <%= username %>
+    </p>
+    <p><strong>Prénom:</strong>
+        <%= firstName %>
+    </p>
+    <p><strong>Nom:</strong>
+        <%= lastName %>
+    </p>
+    <p><strong>Email:</strong>
+        <%= email %>
+    </p>
+    <button onclick="window.location.href='/read-cachette'">Retour à la carte</button>
+</body>
+
+</html>

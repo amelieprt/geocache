@@ -21,35 +21,37 @@ const cachette_1 = require("./cachette");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const path_1 = __importDefault(require("path"));
+// import passport from 'passport';
+// import { initializePassport, authenticateJwt } from './passport-config';
 dotenv_1.default.config();
+const bcrypt = require("bcryptjs");
 const secretKey = process.env.JWT_SECRET;
 if (!secretKey) {
     throw new Error("La clé secrète JWT n'est pas définie !");
 }
 const app = (0, express_1.default)();
 exports.app = app;
-// const secretKey = "secretKey"; //A vériifer si c'est la bonne clé
-// parser le json
+// initializePassport();
 app.use(express_1.default.json());
 // Middleware pour vérifier le token
-function verifyToken(req, res, next) {
-    const authHeader = req.headers['authorization'];
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(403).send("Un token est requis pour l'authentification");
+const verifyToken = (req, res, next) => {
+    const token = req.header("Authorization");
+    if (!token) {
+        return res.status(403).json({ message: "Accès refusé. Aucun token fourni." });
     }
-    const token = authHeader.split(' ')[1]; // On enlève "Bearer "
     try {
-        if (!secretKey) {
-            return res.status(500).send("La clé secrète JWT n'est pas définie !");
+        const jwtSecret = process.env.JWT_SECRET;
+        if (!jwtSecret) {
+            throw new Error("La clé secrète JWT n'est pas définie !");
         }
-        const decoded = jsonwebtoken_1.default.verify(token, secretKey);
+        const decoded = jsonwebtoken_1.default.verify(token.split(" ")[1], jwtSecret); // ✅ Prend uniquement le token après "Bearer"
         req.user = decoded;
         next();
     }
     catch (err) {
-        return res.status(401).send("Token invalide");
+        return res.status(403).json({ message: "Token invalide ou expiré." });
     }
-}
+};
 // route pour servir la page d'accueil avec la carte Leaflet
 app.get('/', (req, res) => {
     res.sendFile(path_1.default.join(__dirname, '../views/index.html'));
@@ -81,10 +83,14 @@ app.get('/read-user', (req, res) => {
 app.get('/create-cachette', (req, res) => {
     res.sendFile(path_1.default.join(__dirname, '../views/create-cachette.html'));
 });
-app.get('/read-cachette', (req, res) => {
-    res.sendFile(path_1.default.join(__dirname, '../views/read-cachette.html'));
+// app.get('/read-cachette', (req, res) => {
+//     res.sendFile(path.join(__dirname, '../views/read-cachette.html'));
+// });
+app.get('/user-profile', (req, res) => {
+    const user = req.body;
+    res.render('user-profile', { username: user.username, firstName: user.firstName, lastName: user.lastName, email: user.email });
 });
-app.get('/delete-cachette', (req, res) => {
+app.get('/delete-cachette', verifyToken, (req, res) => {
     res.sendFile(path_1.default.join(__dirname, '../views/delete-cachette.html'));
 });
 // route pour servir le formulaire de mise à jour de cachette
@@ -114,9 +120,15 @@ app.post('/signup', (req, res) => __awaiter(void 0, void 0, void 0, function* ()
 app.post('/login', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield (0, users_1.checkLogin)(req.body);
-        const token = jsonwebtoken_1.default.sign({ username: req.body.username, password: req.body.password }, secretKey, { expiresIn: '1h' });
-        // res.status(200).json({ message: "Connexion réussie", token });
-        res.status(200).redirect('/read-user'); // TODO : (APRES TOUS LES AUTRES TODO) retourner un token JWT et une page de redirection 
+        const user = { username: "amelie", password: "test" };
+        const hashedPassword = bcrypt.hashSync(user.password, 10);
+        const token = jsonwebtoken_1.default.sign({ username: req.body.username, password: req.body.password }, secretKey, { expiresIn: "1h" });
+        res.appendHeader("token", token);
+        // res.send("coucou voici le contenu de ma page")
+        // res.status(200); //
+        res.redirect('/read-cachette');
+        // res.status(200).json({ message: "Connexion réussie", token })
+        // res.status(200).redirect('/read-cachette');
     }
     catch (error) {
         console.error;
@@ -223,26 +235,35 @@ app.post('/create-cachette', (req, res) => __awaiter(void 0, void 0, void 0, fun
 // // route pour lire une cachette
 // // Verifier si lire la cachette fonctionne
 // // http://localhost:3000/read-cachette?nom=Cachette1
-app.post('/read-cachette', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+// app.post('/read-cachette', async (req: any, res: any) => {
+//     try {
+//         const { nom } = req.body;
+//         console.log("Nom reçu :", nom);
+//         if (!nom) {
+//             res.status(400);
+//             return res.json({ message: "Le nom de la cachette est requis." });
+//         }
+//         //////////// AFFICHER UNE CACHETTE //////////////
+//         // const cachette = await readCachette(nom as string);
+//         /////// AFFICHER TT LES CACHETTES ////////////////
+//         const cachette = await readAllCachettes();
+//         // res.status(200).json(cachette);
+//         res.render('read-cachette', { cachette });
+//     } catch (error) {
+//         console.error;
+//         const errorMessage = (error instanceof Error) ? error.message : "Unknown error";
+//         res.status(500);
+//         res.json({ message: "Lecture de la cachette échouée " + errorMessage });
+//     }
+// });
+app.get('/read-cachette', verifyToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { nom } = req.body;
-        console.log("Nom reçu :", nom);
-        if (!nom) {
-            res.status(400);
-            return res.json({ message: "Le nom de la cachette est requis." });
-        }
-        //////////// AFFICHER UNE CACHETTE //////////////
-        // const cachette = await readCachette(nom as string);
-        /////// AFFICHER TT LES CACHETTES ////////////////
-        const cachette = yield (0, cachette_1.readAllCachettes)();
-        // res.status(200).json(cachette);
-        res.render('read-cachette', { cachette });
+        const cachettes = yield (0, cachette_1.readAllCachettes)();
+        res.render('read-cachette', { cachettes });
     }
     catch (error) {
-        console.error;
-        const errorMessage = (error instanceof Error) ? error.message : "Unknown error";
-        res.status(500);
-        res.json({ message: "Lecture de la cachette échouée " + errorMessage });
+        console.error(error);
+        res.status(500).send("Erreur lors de la lecture des cachettes");
     }
 }));
 // // route pour supprimer une cachette

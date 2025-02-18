@@ -29,6 +29,32 @@
         .create-cachette-btn:hover {
             background-color: #0056b3;
         }
+        .view-profile-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .view-profile-btn:hover {
+            background-color: #0056b3;
+        }
+        .profile-container {
+            display: none;
+            position: absolute;
+            top: 50px;
+            right: 10px;
+            z-index: 1000;
+            background-color: white;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+        }
     </style>
 </head>
 
@@ -36,6 +62,7 @@
     <h1>GéoCache</h1>
     <div id="map"></div>
     <button class="create-cachette-btn" onclick="window.location.href='/create-cachette'">Créer une nouvelle cachette</button>
+    <button class="view-profile-btn" onclick="window.location.href='/user-profile'">Voir le profil</button>
     <div class="radius-selector">
         <label for="radius">Afficher les cachettes dans un rayon de :</label>
         <select id="radius" onchange="updateCachettes()">
@@ -78,20 +105,42 @@
                 map.setView([userLat, userLng], 13);
 
 
-                 // Définir un périmètre autour de l'utilisateur
-                function updateCachettes() {
-                    var radius = document.getElementById('radius').value;
-                    if (radius !== 'all') {
-                        radius = parseInt(radius);
-                        var circle = L.circle([userLat, userLng], {
-                            color: 'blue',
-                            fillColor: '#30f',
-                            fillOpacity: 0.2,
-                            radius: radius * 1000 // convertir en mètres
-                        }).addTo(map);
-                    }
+                // Définir un périmètre de 10 km autour de l'utilisateur
+                var radius = 10; // en km
+                var circle = L.circle([userLat, userLng], {
+                    color: 'blue',
+                    fillColor: '#30f',
+                    fillOpacity: 0.2,
+                    radius: radius * 1000 // convertir en mètres
+                }).addTo(map);
 
-        <% cachette.forEach(function(cachette) { %>
+                // const token = localStorage.getItem("token");
+
+                // fetch("http://localhost:3000/read-cachette", {
+                //     method: "GET",
+                //     headers: {
+                //         "Content-Type": "application/json",
+                //         "Authorization": `Bearer ${token}`, // ✅ Assurez-vous d'inclure "Bearer"
+                //     },
+                // })
+                //     .then((response) => response.json())
+                //     .then((data) => console.log(data))
+                //     .catch((error) => console.error("Error:", error));
+                // Afficher les cachettes à proximité
+                fetch('/read-cachette', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                    }
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Unauthorized');
+                        }
+                        return response.json();
+                    })
+
+        <% cachettes.forEach(function(cachette) { %>
             L.marker([<%= cachette.latitude %>, <%= cachette.longitude %>]).addTo(map)
                 .bindPopup('<%= cachette.nom %><br><%= cachette.description %><br><br>' +
                     '<b>Longitude:</b> <%= cachette.longitude %><br>' +
@@ -106,12 +155,7 @@
                     '<button type="submit">Supprimer</button>' +
                     '</form>')
                 .openPopup();
-            
         <% }); %>
-
-}
-        // Initialiser l'affichage des cachettes
-        updateCachettes();
     }, function (error) {
                 console.error("Erreur de géolocalisation : ", error);
             });
@@ -121,4 +165,11 @@
     </script>
 </body>
 
-</html>
+</html> 
+
+    
+
+
+
+
+
