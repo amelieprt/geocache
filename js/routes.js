@@ -216,7 +216,7 @@ app.post('/update-user', (req, res) => __awaiter(void 0, void 0, void 0, functio
         };
         yield (0, users_1.updateUser)(username, updatedUser);
         console.log("Utilisateur mis à jour :", username);
-        res.status(200).redirect('/create-cachette');
+        res.status(200).redirect('/user-profile');
     }
     catch (error) {
         console.error(error);
@@ -320,5 +320,13 @@ app.post('/update-cachette', (req, res) => __awaiter(void 0, void 0, void 0, fun
         res.json({ message: "Mise à jour de la cachette échouée " + errorMessage });
     }
 }));
+app.get("/logout", (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            return res.status(500).send("Erreur lors de la déconnexion");
+        }
+        res.redirect("/login"); // Redirige vers la page de connexion après déconnexion
+    });
+});
 const toto = app;
 exports.toto = toto;

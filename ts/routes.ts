@@ -267,7 +267,7 @@ app.post('/update-user', async (req: any, res: any) => {
         await updateUser(username, updatedUser);
         console.log("Utilisateur mis à jour :", username);
 
-        res.status(200).redirect('/create-cachette');
+        res.status(200).redirect('/user-profile');
     } catch (error) {
         console.error(error);
         const errorMessage = (error instanceof Error) ? error.message : "Unknown error";
@@ -388,6 +388,15 @@ app.post('/update-cachette', async (req: any, res: any) => {
         res.status(500);
         res.json({ message: "Mise à jour de la cachette échouée " + errorMessage });
     }
+});
+
+app.get("/logout", (req: any, res: any) => {
+    req.session.destroy((err: any) => {  // Ici, `err` est typé en `any`
+        if (err) {
+            return res.status(500).send("Erreur lors de la déconnexion");
+        }
+        res.redirect("/login");  // Redirige vers la page de connexion après déconnexion
+    });
 });
 
 
