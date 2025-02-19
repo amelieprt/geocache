@@ -29,7 +29,7 @@ const SECRET_KEY = "votre_cle_secrete";
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use(session({ secret: "secret", resave: false, saveUninitialized: true }));
 // Simuler une base de données utilisateur
-const users = [{ username: "admin", password: "1234" }];
+// const user = [{ username: "amelieprt", password: "123" }]; //{ username: "amelieprt", password: "123" }
 // Middleware d'authentification
 function verifyTokenOrSession(req, res, next) {
     if (req.session.user) {
@@ -48,7 +48,7 @@ function verifyTokenOrSession(req, res, next) {
 }
 // Route de connexion
 app.post("/login", (req, res) => {
-    const { username, password } = req.body;
+    const { username, password, firstName, lastName, email } = req.body;
     console.log("Identifiants reçus :", username, password);
     console.log("Utilisateurs enregistrés :", users);
     const user = users.find(u => u.username === username && u.password === password);
@@ -56,7 +56,8 @@ app.post("/login", (req, res) => {
         console.log("Aucun utilisateur trouvé !");
         return res.status(401).send("Identifiants incorrects");
     }
-    req.session.user = user;
+    // req.session.user = user;
+    req.session.user = Object.assign({}, user);
     res.redirect("/read-cachette"); // Redirection après connexion
 });
 // Route pour générer un token temporaire (si non connecté)
@@ -102,9 +103,35 @@ app.get('/read-user', (req, res) => {
 app.get('/create-cachette', (req, res) => {
     res.sendFile(path_1.default.join(__dirname, '../views/create-cachette.html'));
 });
+// app.get('/user-profile', (req, res) => {
+//     const user = req.body;
+//     console.log("afficher", req.body)
+//     res.render('user-profile', { username: user.username, firstName: user.firstName, lastName: user.lastName, email: user.email });
+// });
+// app.get('/user-profile', (req: any, res) => {
+//     if (!req.session.user) {
+//         return res.redirect('/login'); // Redirige si l'utilisateur n'est pas connecté
+//     }
+//     console.log("Utilisateur trouvé :", req.session.user);
+//     const user = req.session.user;
+//     res.render('user-profile', {
+//         username: user.username,
+//         firstName: user.firstName || '',
+//         lastName: user.lastName || '',
+//         email: user.email || ''
+//     });
+// });
 app.get('/user-profile', (req, res) => {
-    const user = req.body;
-    res.render('user-profile', { username: user.username, firstName: user.firstName, lastName: user.lastName, email: user.email });
+    if (!req.session.user) {
+        return res.redirect('/login');
+    }
+    console.log("Données envoyées à EJS :", req.session.user); // 🔍 Debug
+    res.render('user-profile', {
+        username: req.session.user.username,
+        firstName: req.session.user.firstName || '',
+        lastName: req.session.user.lastName || '',
+        email: req.session.user.email || ''
+    });
 });
 app.get('/delete-cachette', (req, res) => {
     res.sendFile(path_1.default.join(__dirname, '../views/delete-cachette.html'));
@@ -116,21 +143,35 @@ app.get('/update-cachette', (req, res) => {
 //////////////////////////USERS////////////////////////////
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
-app.post('/signup', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { username, firstName, lastName, email, password } = req.body;
-        console.log("Données reçues pour l'inscription :", req.body);
-        const newUser = { username, firstName, lastName, email, password };
-        const result = yield addUser(newUser);
-        console.log("Utilisateur ajouté :", result);
-        res.status(201).redirect('/login');
+// app.post('/signup', async (req, res) => {
+//     try {
+//         const { username, firstName, lastName, email, password } = req.body;
+//         console.log("Données reçues pour l'inscription :", req.body);
+//         const newUser = { username, firstName, lastName, email, password };
+//         const result = await addUser(newUser);
+//         console.log("Utilisateur ajouté :", result);
+//         res.status(201).redirect('/login');
+//     } catch (error) {
+//         console.error("Erreur lors de l'inscription :", error);
+//         const errorMessage = (error instanceof Error) ? error.message : "Unknown error";
+//         res.status(500).render('error', { message: "Inscription échouée " + errorMessage });
+//     }
+// });
+const users = []; // Simulation d'une base de données utilisateur
+app.post("/signup", (req, res) => {
+    const { username, password, firstName, lastName, email } = req.body;
+    if (!username || !password) {
+        return res.status(400).send("Merci de fournir un username et un password.");
     }
-    catch (error) {
-        console.error("Erreur lors de l'inscription :", error);
-        const errorMessage = (error instanceof Error) ? error.message : "Unknown error";
-        res.status(500).render('error', { message: "Inscription échouée " + errorMessage });
+    const existingUser = users.find(u => u.username === username);
+    if (existingUser) {
+        return res.status(400).send("Cet utilisateur existe déjà.");
     }
-}));
+    // Ajouter l'utilisateur avec toutes les infos
+    const newUser = { username, password, firstName, lastName, email };
+    users.push(newUser);
+    res.status(201).redirect('/login');
+});
 app.get('/read-cachette', verifyTokenOrSession, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const cachettes = yield (0, cachette_1.readAllCachettes)();

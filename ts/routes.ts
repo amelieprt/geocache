@@ -19,7 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(session({ secret: "secret", resave: false, saveUninitialized: true }));
 
 // Simuler une base de données utilisateur
-const users = [{ username: "admin", password: "1234" }];
+// const user = [{ username: "amelieprt", password: "123" }]; //{ username: "amelieprt", password: "123" }
 
 // Middleware d'authentification
 function verifyTokenOrSession(req: any, res: any, next: any) {
@@ -40,9 +40,11 @@ function verifyTokenOrSession(req: any, res: any, next: any) {
     });
 }
 
+
+
 // Route de connexion
 app.post("/login", (req: any, res: any) => {
-    const { username, password } = req.body;
+    const { username, password, firstName, lastName, email } = req.body;
 
     console.log("Identifiants reçus :", username, password);
     console.log("Utilisateurs enregistrés :", users);
@@ -53,10 +55,11 @@ app.post("/login", (req: any, res: any) => {
         console.log("Aucun utilisateur trouvé !");
         return res.status(401).send("Identifiants incorrects");
     }
-
-    req.session.user = user;
+    // req.session.user = user;
+    req.session.user = { ...user };
     res.redirect("/read-cachette"); // Redirection après connexion
 });
+
 
 
 // Route pour générer un token temporaire (si non connecté)
@@ -120,9 +123,41 @@ app.get('/create-cachette', (req, res) => {
 });
 
 
-app.get('/user-profile', (req, res) => {
-    const user = req.body;
-    res.render('user-profile', { username: user.username, firstName: user.firstName, lastName: user.lastName, email: user.email });
+// app.get('/user-profile', (req, res) => {
+//     const user = req.body;
+//     console.log("afficher", req.body)
+//     res.render('user-profile', { username: user.username, firstName: user.firstName, lastName: user.lastName, email: user.email });
+// });
+
+// app.get('/user-profile', (req: any, res) => {
+//     if (!req.session.user) {
+//         return res.redirect('/login'); // Redirige si l'utilisateur n'est pas connecté
+//     }
+
+//     console.log("Utilisateur trouvé :", req.session.user);
+
+//     const user = req.session.user;
+//     res.render('user-profile', {
+//         username: user.username,
+//         firstName: user.firstName || '',
+//         lastName: user.lastName || '',
+//         email: user.email || ''
+//     });
+// });
+
+app.get('/user-profile', (req: any, res) => {
+    if (!req.session.user) {
+        return res.redirect('/login');
+    }
+
+    console.log("Données envoyées à EJS :", req.session.user); // 🔍 Debug
+
+    res.render('user-profile', {
+        username: req.session.user.username,
+        firstName: req.session.user.firstName || '',
+        lastName: req.session.user.lastName || '',
+        email: req.session.user.email || ''
+    });
 });
 
 
@@ -139,22 +174,45 @@ app.get('/update-cachette', (req, res) => {
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.post('/signup', async (req, res) => {
-    try {
-        const { username, firstName, lastName, email, password } = req.body;
-        console.log("Données reçues pour l'inscription :", req.body);
+// app.post('/signup', async (req, res) => {
+//     try {
+//         const { username, firstName, lastName, email, password } = req.body;
+//         console.log("Données reçues pour l'inscription :", req.body);
 
-        const newUser = { username, firstName, lastName, email, password };
-        const result = await addUser(newUser);
-        console.log("Utilisateur ajouté :", result);
+//         const newUser = { username, firstName, lastName, email, password };
+//         const result = await addUser(newUser);
+//         console.log("Utilisateur ajouté :", result);
 
-        res.status(201).redirect('/login');
-    } catch (error) {
-        console.error("Erreur lors de l'inscription :", error);
-        const errorMessage = (error instanceof Error) ? error.message : "Unknown error";
-        res.status(500).render('error', { message: "Inscription échouée " + errorMessage });
+//         res.status(201).redirect('/login');
+//     } catch (error) {
+//         console.error("Erreur lors de l'inscription :", error);
+//         const errorMessage = (error instanceof Error) ? error.message : "Unknown error";
+//         res.status(500).render('error', { message: "Inscription échouée " + errorMessage });
+//     }
+// });
+
+
+const users: any[] = []; // Simulation d'une base de données utilisateur
+
+app.post("/signup", (req: any, res: any) => {
+    const { username, password, firstName, lastName, email } = req.body;
+
+    if (!username || !password) {
+        return res.status(400).send("Merci de fournir un username et un password.");
     }
+
+    const existingUser = users.find(u => u.username === username);
+    if (existingUser) {
+        return res.status(400).send("Cet utilisateur existe déjà.");
+    }
+
+    // Ajouter l'utilisateur avec toutes les infos
+    const newUser = { username, password, firstName, lastName, email };
+    users.push(newUser);
+
+    res.status(201).redirect('/login');
 });
+
 
 
 
