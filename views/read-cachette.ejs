@@ -11,9 +11,11 @@
             height: 600px;
             width: 100%;
         }
+
         .leaflet-bottom.leaflet-right {
             position: relative;
         }
+
         .create-cachette-btn {
             position: absolute;
             bottom: 10px;
@@ -26,9 +28,11 @@
             border-radius: 5px;
             cursor: pointer;
         }
+
         .create-cachette-btn:hover {
             background-color: #0056b3;
         }
+
         .view-profile-btn {
             position: absolute;
             top: 10px;
@@ -41,9 +45,11 @@
             border-radius: 5px;
             cursor: pointer;
         }
+
         .view-profile-btn:hover {
             background-color: #0056b3;
         }
+
         .profile-container {
             display: none;
             position: absolute;
@@ -61,7 +67,8 @@
 <body>
     <h1>GéoCache</h1>
     <div id="map"></div>
-    <button class="create-cachette-btn" onclick="window.location.href='/create-cachette'">Créer une nouvelle cachette</button>
+    <button class="create-cachette-btn" onclick="window.location.href='/create-cachette'">Créer une nouvelle
+        cachette</button>
     <button class="view-profile-btn" onclick="window.location.href='/user-profile'">Voir le profil</button>
     <div class="radius-selector">
         <label for="radius">Afficher les cachettes dans un rayon de :</label>
@@ -85,8 +92,8 @@
             var dLat = (lat2 - lat1) * Math.PI / 180;
             var dLon = (lon2 - lon1) * Math.PI / 180;
             var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
             var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
             var d = R * c;
             return d;
@@ -94,7 +101,7 @@
 
         // Ajouter la position de l'utilisateur en direct
         if (navigator.geolocation) {
-            navigator.geolocation.watchPosition(function(position) {
+            navigator.geolocation.watchPosition(function (position) {
                 var userLat = position.coords.latitude;
                 var userLng = position.coords.longitude;
 
@@ -114,47 +121,24 @@
                     radius: radius * 1000 // convertir en mètres
                 }).addTo(map);
 
-                // const token = localStorage.getItem("token");
 
-                // fetch("http://localhost:3000/read-cachette", {
-                //     method: "GET",
-                //     headers: {
-                //         "Content-Type": "application/json",
-                //         "Authorization": `Bearer ${token}`, // ✅ Assurez-vous d'inclure "Bearer"
-                //     },
-                // })
-                //     .then((response) => response.json())
-                //     .then((data) => console.log(data))
-                //     .catch((error) => console.error("Error:", error));
-                // Afficher les cachettes à proximité
-                fetch('/read-cachette', {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': 'Bearer ' + localStorage.getItem('token')
-                    }
-                })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Unauthorized');
-                        }
-                        return response.json();
-                    })
 
-        <% cachettes.forEach(function(cachette) { %>
-            L.marker([<%= cachette.latitude %>, <%= cachette.longitude %>]).addTo(map)
-                .bindPopup('<%= cachette.nom %><br><%= cachette.description %><br><br>' +
-                    '<b>Longitude:</b> <%= cachette.longitude %><br>' +
-                    '<b>Latitude:</b> <%= cachette.latitude %><br>' +
-                    '<b>Difficulté:</b> <%= cachette.difficulte %><br><br>' +
-                    '<form action="/update-cachette" method="GET" style="display:inline;">' +
-                    '<input type="hidden" name="nom" value="<%= cachette.nom %>">' +
-                    '<button type="submit">Mettre à jour</button>' +
-                    '</form>' +
-                    '<form action="/delete-cachette" method="POST" style="display:inline;">' +
-                    '<input type="hidden" name="nom" value="<%= cachette.nom %>">' +
-                    '<button type="submit">Supprimer</button>' +
-                    '</form>')
-                .openPopup();
+
+                    <% cachettes.forEach(function (cachette) { %>
+                        L.marker([<%= cachette.latitude %>, <%= cachette.longitude %>]).addTo(map)
+                            .bindPopup('<%= cachette.nom %><br><%= cachette.description %><br><br>' +
+                                '<b>Longitude:</b> <%= cachette.longitude %><br>' +
+                                '<b>Latitude:</b> <%= cachette.latitude %><br>' +
+                                '<b>Difficulté:</b> <%= cachette.difficulte %><br><br>' +
+                                '<form action="/update-cachette" method="GET" style="display:inline;">' +
+                                '<input type="hidden" name="nom" value="<%= cachette.nom %>">' +
+                                '<button type="submit">Mettre à jour</button>' +
+                                '</form>' +
+                                '<form action="/delete-cachette" method="POST" style="display:inline;">' +
+                                '<input type="hidden" name="nom" value="<%= cachette.nom %>">' +
+                                '<button type="submit">Supprimer</button>' +
+                                '</form>')
+                            .openPopup();
         <% }); %>
     }, function (error) {
                 console.error("Erreur de géolocalisation : ", error);
@@ -165,11 +149,4 @@
     </script>
 </body>
 
-</html> 
-
-    
-
-
-
-
-
+</html>
