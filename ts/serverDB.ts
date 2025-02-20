@@ -1,8 +1,10 @@
 import { MongoClient } from 'mongodb';
 
 // parametres du serveur de données
-const uri = "mongodb://localhost:27017";
+// const uri = "mongodb://localhost:27017";
 // const uri = process.env.SCALINGO_MONGO_URL || "mongodb://127.0.0.1:27017/ma_nouvelle_bdd";
+const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/ma_nouvelle_bdd';
+
 
 const dbname = "ma_nouvelle_bdd";
 
@@ -21,5 +23,9 @@ let db: any
         // client.close(); // TODO : quand faut-il fermer la connexion
     }
 }
+
+
+
+
 
 export { db };
