@@ -85,6 +85,12 @@ app.get("/generate-token", (req, res) => {
 });
 dotenv_1.default.config();
 app.use(express_1.default.json());
+// Servir les fichiers statiques depuis le dossier "views"
+app.use(express_1.default.static(path_1.default.join(__dirname, 'views')));
+// Si aucune route API ne correspond, renvoyer index.html
+app.get('*', (req, res) => {
+    res.sendFile(path_1.default.join(__dirname, 'views', 'index.html'));
+});
 // route pour servir la page d'accueil avec la carte Leaflet
 app.get('/', (req, res) => {
     res.sendFile(path_1.default.join(__dirname, '../views/index.html'));
