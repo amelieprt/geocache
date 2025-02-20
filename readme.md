@@ -23,16 +23,25 @@ nom d'utilisateur,
 Nom,
 Prenom,
 Email
+Ajout d'un bouton modifier le profil
+Ajout d'un bouton déconnexion au profil
+Ajout d'un bouton supprimer le profil
+Ajout la position en temps réel du joueur
+Affichage du rayon de 10km,100km et toutes les cachettes
+Créer une cachette
+Modifier la cachette : Tous les champs de créer la cachette MAIS on peut pas modifier le nom de la cachette
+Supprimer la cachette avec le nom de la cachette qu'on veut supprimer
+Lire la cachette : Sous forme de map avec l'API Leaflet
 
 description de mes collections
 
 # // USERS
 
 login
-pass
+password
 Nom
 Prénom
-mail
+email
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -46,18 +55,11 @@ la latitude,
 le niveau de difficulté et
 le mot de passe de la cachette
 
-Modifier la cachette : Tous les champs de créer la cachette MAIS on peut pas modifier le nom de la cachette
-
-Supprimer la cachette
-
-Lire la cachette : Sous forme de map avec l'API Leaflet
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 Fonctionnalité à implementer
 
-Ajoutez un bouton déconnexion au profil
-Ajoutez un bouton modifier le profil
+Regler le problème de connexions alors qu'on a dejà un compte pas toujours devoir créer un compte
 Ajoutez le périmètre des cachettes, les caches si on selectionne un rayon
 Ajoutez une validation de cachette quand l'utilisateur à trouvez une cachette et à taper le bon mot de passe,
 Ajoutez un classement des joueurs qui a trouvez le plus de cachette,

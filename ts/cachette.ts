@@ -83,4 +83,5 @@ async function checkCachette(id: any) {
         throw new Error("Cachette non trouvé");
 }
 
+
 export { addcachette, deleteCachette, readCachette, updateCachette, checkCachette, readAllCachettes };

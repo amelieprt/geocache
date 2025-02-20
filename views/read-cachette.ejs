@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Détails des Cachettes</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-    <style>
+    <style> 
         #map {
             height: 600px;
             width: 100%;
@@ -16,7 +16,7 @@
             position: relative;
         }
 
-        .create-cachette-btn {
+        .create-cachette-btn { 
             position: absolute;
             bottom: 10px;
             right: 10px;
@@ -145,11 +145,13 @@
                                 '<b>Longitude:</b> <%= cachette.longitude %><br>' +
                                 '<b>Latitude:</b> <%= cachette.latitude %><br>' +
                                 '<b>Difficulté:</b> <%= cachette.difficulte %><br><br>' +
+
                                 '<form action="/update-cachette" method="GET" style="display:inline;">' +
                                 '<input type="hidden" name="nom" value="<%= cachette.nom %>">' +
                                 '<button type="submit">Mettre à jour</button>' +
                                 '</form>' +
-                                '<form action="/delete-cachette" method="POST" style="display:inline;">' +
+                                
+                                '<form action="/delete-cachette" method="GET" style="display:inline;">' +
                                 '<input type="hidden" name="nom" value="<%= cachette.nom %>">' +
                                 '<button type="submit">Supprimer</button>' +
                                 '</form>')

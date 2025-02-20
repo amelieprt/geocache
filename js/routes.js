@@ -1,4 +1,5 @@
 "use strict";
+//Initialisation des dépendances utilisés et des exports de fonctions
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -25,15 +26,15 @@ const cookieParser = require("cookie-parser");
 const session = require("express-session");
 const app = (0, express_1.default)();
 exports.app = app;
-const SECRET_KEY = "votre_cle_secrete";
+// Clée secrete pour sécurisée l'app
+const SECRET_KEY = "Geocache33";
+// Middelware
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use(session({ secret: "secret", resave: false, saveUninitialized: true }));
-// Simuler une base de données utilisateur
-// const user = [{ username: "amelieprt", password: "123" }]; //{ username: "amelieprt", password: "123" }
 // Middleware d'authentification
 function verifyTokenOrSession(req, res, next) {
-    if (req.session.user) {
-        return next(); // Si l'utilisateur est connecté, accès direct
+    if (req.session && req.session.user) {
+        return next(); // L'utilisateur est connecté
     }
     const token = req.query.token;
     if (!token) {
@@ -46,37 +47,49 @@ function verifyTokenOrSession(req, res, next) {
         next();
     });
 }
-// Route de connexion
+// Garder en mémoire la session de l'utilisateur avec un cookies 
+app.use(session({
+    secret: 'Geocache33', // La clé
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false }
+}));
+// Route de connexion login
 app.post("/login", (req, res) => {
-    const { username, password, firstName, lastName, email } = req.body;
+    const { username, password, firstName, lastName, email } = req.body; //Recupérer les infos de signup
     console.log("Identifiants reçus :", username, password);
     console.log("Utilisateurs enregistrés :", users);
-    const user = users.find(u => u.username === username && u.password === password);
+    const user = users.find(u => u.username === username && u.password === password); //verif des bons saisie de champs
     if (!user) {
         console.log("Aucun utilisateur trouvé !");
         return res.status(401).send("Identifiants incorrects");
     }
-    // req.session.user = user;
     req.session.user = Object.assign({}, user);
     res.redirect("/read-cachette"); // Redirection après connexion
 });
+//Route lire les cachettes
+app.get('/read-cachette', verifyTokenOrSession, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const cachettes = yield (0, cachette_1.readAllCachettes)(); //Accès à toute les cachette
+        res.render('read-cachette', { cachettes });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).send("Erreur lors de la lecture des cachettes");
+    }
+}));
 // Route pour générer un token temporaire (si non connecté)
 app.get("/generate-token", (req, res) => {
     const token = jsonwebtoken_1.default.sign({ access: "read-cachette" }, SECRET_KEY, { expiresIn: "10m" });
     res.redirect(`/read-cachette?token=${token}`);
 });
 dotenv_1.default.config();
-const bcrypt = require("bcryptjs");
-const secretKey = process.env.JWT_SECRET;
-if (!secretKey) {
-    throw new Error("La clé secrète JWT n'est pas définie !");
-}
 app.use(express_1.default.json());
 // route pour servir la page d'accueil avec la carte Leaflet
 app.get('/', (req, res) => {
     res.sendFile(path_1.default.join(__dirname, '../views/index.html'));
 });
-// Serve static files for Leaflet
+// Accès à l'api leaflet
 app.use('/leaflet', express_1.default.static(path_1.default.join(__dirname, '../node_modules/leaflet/dist')));
 //////////////////////FORMULAIRE//////////////////////////
 // route pour servir le formulaire d'inscription
@@ -103,24 +116,7 @@ app.get('/read-user', (req, res) => {
 app.get('/create-cachette', (req, res) => {
     res.sendFile(path_1.default.join(__dirname, '../views/create-cachette.html'));
 });
-// app.get('/user-profile', (req, res) => {
-//     const user = req.body;
-//     console.log("afficher", req.body)
-//     res.render('user-profile', { username: user.username, firstName: user.firstName, lastName: user.lastName, email: user.email });
-// });
-// app.get('/user-profile', (req: any, res) => {
-//     if (!req.session.user) {
-//         return res.redirect('/login'); // Redirige si l'utilisateur n'est pas connecté
-//     }
-//     console.log("Utilisateur trouvé :", req.session.user);
-//     const user = req.session.user;
-//     res.render('user-profile', {
-//         username: user.username,
-//         firstName: user.firstName || '',
-//         lastName: user.lastName || '',
-//         email: user.email || ''
-//     });
-// });
+// Route pour voir le profil de l'utilisateur apres connexion
 app.get('/user-profile', (req, res) => {
     if (!req.session.user) {
         return res.redirect('/login');
@@ -133,6 +129,7 @@ app.get('/user-profile', (req, res) => {
         email: req.session.user.email || ''
     });
 });
+// Route pour supprimer une cachette
 app.get('/delete-cachette', (req, res) => {
     res.sendFile(path_1.default.join(__dirname, '../views/delete-cachette.html'));
 });
@@ -143,21 +140,8 @@ app.get('/update-cachette', (req, res) => {
 //////////////////////////USERS////////////////////////////
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
-// app.post('/signup', async (req, res) => {
-//     try {
-//         const { username, firstName, lastName, email, password } = req.body;
-//         console.log("Données reçues pour l'inscription :", req.body);
-//         const newUser = { username, firstName, lastName, email, password };
-//         const result = await addUser(newUser);
-//         console.log("Utilisateur ajouté :", result);
-//         res.status(201).redirect('/login');
-//     } catch (error) {
-//         console.error("Erreur lors de l'inscription :", error);
-//         const errorMessage = (error instanceof Error) ? error.message : "Unknown error";
-//         res.status(500).render('error', { message: "Inscription échouée " + errorMessage });
-//     }
-// });
 const users = []; // Simulation d'une base de données utilisateur
+// Route pour s'inscrire
 app.post("/signup", (req, res) => {
     const { username, password, firstName, lastName, email } = req.body;
     if (!username || !password) {
@@ -170,18 +154,10 @@ app.post("/signup", (req, res) => {
     // Ajouter l'utilisateur avec toutes les infos
     const newUser = { username, password, firstName, lastName, email };
     users.push(newUser);
+    req.session.user = newUser;
     res.status(201).redirect('/login');
 });
-app.get('/read-cachette', verifyTokenOrSession, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const cachettes = yield (0, cachette_1.readAllCachettes)();
-        res.render('read-cachette', { cachettes });
-    }
-    catch (error) {
-        console.error(error);
-        res.status(500).send("Erreur lors de la lecture des cachettes");
-    }
-}));
+// Route pour supprimer son compte
 app.post('/delete-user', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { username, password } = req.body;
@@ -190,7 +166,7 @@ app.post('/delete-user', (req, res) => __awaiter(void 0, void 0, void 0, functio
             return res.json({ "message": "Login et Password requis." });
         }
         yield (0, users_1.deleteUser)(username, password);
-        res.redirect('/update-user');
+        res.redirect('/login');
     }
     catch (error) {
         console.error;
@@ -199,7 +175,7 @@ app.post('/delete-user', (req, res) => __awaiter(void 0, void 0, void 0, functio
         res.json({ "message": "Suppression  échouée " + errorMessage });
     }
 }));
-// // route pour mettre à jour un utilisateur
+// // Route pour mettre à jour un utilisateur
 app.post('/update-user', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { username, firstName, lastName, email, password } = req.body;
@@ -229,6 +205,7 @@ app.post('/update-user', (req, res) => __awaiter(void 0, void 0, void 0, functio
         res.json({ "message": "Connexion échouée " + errorMessage });
     }
 }));
+// Route pour lire un user dans voir le profil
 app.post('/read-user', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { username } = req.body;
@@ -277,7 +254,6 @@ app.post('/create-cachette', (req, res) => __awaiter(void 0, void 0, void 0, fun
         res.json({ "message": "Création de la cachette échouée " + errorMessage });
     }
 }));
-// http://localhost:3000/delete-cachette nom:test
 // // route pour supprimer une cachette
 app.post('/delete-cachette', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -287,7 +263,7 @@ app.post('/delete-cachette', (req, res) => __awaiter(void 0, void 0, void 0, fun
             return res.json({ message: "Le nom de la cachette est requis." });
         }
         yield (0, cachette_1.deleteCachette)(nom);
-        res.status(200); // .redirect('/create-cachette');
+        res.status(200).redirect('/read-cachette');
     }
     catch (error) {
         console.error;
@@ -298,6 +274,7 @@ app.post('/delete-cachette', (req, res) => __awaiter(void 0, void 0, void 0, fun
 }));
 // // Middleware pour permettre les méthodes PUT et DELETE dans les formulaires HTML
 app.use((0, method_override_1.default)('_method'));
+// route pour modifier des cachettes
 app.post('/update-cachette', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { nom, description, longitude, latitude, difficulte, mdp } = req.body;
@@ -324,6 +301,7 @@ app.post('/update-cachette', (req, res) => __awaiter(void 0, void 0, void 0, fun
         res.json({ message: "Mise à jour de la cachette échouée " + errorMessage });
     }
 }));
+// Route pour se déconnecter 
 app.get("/logout", (req, res) => {
     req.session.destroy((err) => {
         if (err) {

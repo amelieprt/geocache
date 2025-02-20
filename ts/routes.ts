@@ -1,3 +1,6 @@
+//Initialisation des dépendances utilisés et des exports de fonctions
+
+
 import express from "express";
 import methodOverride from "method-override";
 import { checkLogin, updateUser, deleteUser, readUsers } from "./users";
@@ -9,22 +12,25 @@ import dotenv from "dotenv";
 import path from "path";
 const cookieParser = require("cookie-parser");
 
+
 const session = require("express-session");
 
 const app = express();
 
-const SECRET_KEY = "votre_cle_secrete";
+// Clée secrete pour sécurisée l'app
 
+const SECRET_KEY = "Geocache33";
+
+// Middelware
 app.use(express.urlencoded({ extended: true }));
 app.use(session({ secret: "secret", resave: false, saveUninitialized: true }));
 
-// Simuler une base de données utilisateur
-// const user = [{ username: "amelieprt", password: "123" }]; //{ username: "amelieprt", password: "123" }
+
 
 // Middleware d'authentification
 function verifyTokenOrSession(req: any, res: any, next: any) {
-    if (req.session.user) {
-        return next(); // Si l'utilisateur est connecté, accès direct
+    if (req.session && req.session.user) {
+        return next();  // L'utilisateur est connecté
     }
 
     const token = req.query.token;
@@ -40,27 +46,41 @@ function verifyTokenOrSession(req: any, res: any, next: any) {
     });
 }
 
+// Garder en mémoire la session de l'utilisateur avec un cookies 
+app.use(session({
+    secret: 'Geocache33',  // La clé
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false }
+}));
 
-
-// Route de connexion
+// Route de connexion login
 app.post("/login", (req: any, res: any) => {
-    const { username, password, firstName, lastName, email } = req.body;
+    const { username, password, firstName, lastName, email } = req.body; //Recupérer les infos de signup
 
     console.log("Identifiants reçus :", username, password);
     console.log("Utilisateurs enregistrés :", users);
 
-    const user = users.find(u => u.username === username && u.password === password);
+    const user = users.find(u => u.username === username && u.password === password); //verif des bons saisie de champs
 
     if (!user) {
         console.log("Aucun utilisateur trouvé !");
         return res.status(401).send("Identifiants incorrects");
     }
-    // req.session.user = user;
     req.session.user = { ...user };
     res.redirect("/read-cachette"); // Redirection après connexion
 });
 
-
+//Route lire les cachettes
+app.get('/read-cachette', verifyTokenOrSession, async (req, res) => { //Route protéger par un token
+    try {
+        const cachettes = await readAllCachettes(); //Accès à toute les cachette
+        res.render('read-cachette', { cachettes });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Erreur lors de la lecture des cachettes");
+    }
+});
 
 // Route pour générer un token temporaire (si non connecté)
 app.get("/generate-token", (req, res) => {
@@ -70,12 +90,7 @@ app.get("/generate-token", (req, res) => {
 
 dotenv.config();
 
-const bcrypt = require("bcryptjs");
 
-const secretKey = process.env.JWT_SECRET;
-if (!secretKey) {
-    throw new Error("La clé secrète JWT n'est pas définie !");
-}
 
 
 app.use(express.json());
@@ -86,7 +101,7 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../views/index.html'));
 });
 
-// Serve static files for Leaflet
+// Accès à l'api leaflet
 app.use('/leaflet', express.static(path.join(__dirname, '../node_modules/leaflet/dist')));
 
 
@@ -123,27 +138,7 @@ app.get('/create-cachette', (req, res) => {
 });
 
 
-// app.get('/user-profile', (req, res) => {
-//     const user = req.body;
-//     console.log("afficher", req.body)
-//     res.render('user-profile', { username: user.username, firstName: user.firstName, lastName: user.lastName, email: user.email });
-// });
-
-// app.get('/user-profile', (req: any, res) => {
-//     if (!req.session.user) {
-//         return res.redirect('/login'); // Redirige si l'utilisateur n'est pas connecté
-//     }
-
-//     console.log("Utilisateur trouvé :", req.session.user);
-
-//     const user = req.session.user;
-//     res.render('user-profile', {
-//         username: user.username,
-//         firstName: user.firstName || '',
-//         lastName: user.lastName || '',
-//         email: user.email || ''
-//     });
-// });
+// Route pour voir le profil de l'utilisateur apres connexion
 
 app.get('/user-profile', (req: any, res) => {
     if (!req.session.user) {
@@ -160,7 +155,7 @@ app.get('/user-profile', (req: any, res) => {
     });
 });
 
-
+// Route pour supprimer une cachette
 
 app.get('/delete-cachette', (req, res) => {
     res.sendFile(path.join(__dirname, '../views/delete-cachette.html'));
@@ -173,28 +168,14 @@ app.get('/update-cachette', (req, res) => {
 
 //////////////////////////USERS////////////////////////////
 
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// app.post('/signup', async (req, res) => {
-//     try {
-//         const { username, firstName, lastName, email, password } = req.body;
-//         console.log("Données reçues pour l'inscription :", req.body);
-
-//         const newUser = { username, firstName, lastName, email, password };
-//         const result = await addUser(newUser);
-//         console.log("Utilisateur ajouté :", result);
-
-//         res.status(201).redirect('/login');
-//     } catch (error) {
-//         console.error("Erreur lors de l'inscription :", error);
-//         const errorMessage = (error instanceof Error) ? error.message : "Unknown error";
-//         res.status(500).render('error', { message: "Inscription échouée " + errorMessage });
-//     }
-// });
 
 
 const users: any[] = []; // Simulation d'une base de données utilisateur
 
+// Route pour s'inscrire
 app.post("/signup", (req: any, res: any) => {
     const { username, password, firstName, lastName, email } = req.body;
 
@@ -211,22 +192,15 @@ app.post("/signup", (req: any, res: any) => {
     const newUser = { username, password, firstName, lastName, email };
     users.push(newUser);
 
+    req.session.user = newUser;
     res.status(201).redirect('/login');
 });
 
 
 
 
-app.get('/read-cachette', verifyTokenOrSession, async (req, res) => {
-    try {
-        const cachettes = await readAllCachettes();
-        res.render('read-cachette', { cachettes });
-    } catch (error) {
-        console.error(error);
-        res.status(500).send("Erreur lors de la lecture des cachettes");
-    }
-});
 
+// Route pour supprimer son compte
 
 app.post('/delete-user', async (req: any, res: any) => {
     try {
@@ -239,7 +213,7 @@ app.post('/delete-user', async (req: any, res: any) => {
 
         await deleteUser(username, password);
 
-        res.redirect('/update-user');
+        res.redirect('/login');
     } catch (error) {
         console.error;
         const errorMessage = (error instanceof Error) ? error.message : "Unknown error";
@@ -248,7 +222,7 @@ app.post('/delete-user', async (req: any, res: any) => {
     }
 });
 
-// // route pour mettre à jour un utilisateur
+// // Route pour mettre à jour un utilisateur
 app.post('/update-user', async (req: any, res: any) => {
     try {
         const { username, firstName, lastName, email, password } = req.body;
@@ -286,6 +260,7 @@ app.post('/update-user', async (req: any, res: any) => {
     }
 });
 
+// Route pour lire un user dans voir le profil
 app.post('/read-user', async (req: any, res: any) => {
     try {
         const { username } = req.body;
@@ -347,7 +322,6 @@ app.post('/create-cachette', async (req: any, res: any) => {
 
 
 
-// http://localhost:3000/delete-cachette nom:test
 // // route pour supprimer une cachette
 app.post('/delete-cachette', async (req: any, res: any) => {
     try {
@@ -360,7 +334,7 @@ app.post('/delete-cachette', async (req: any, res: any) => {
 
         await deleteCachette(nom);
 
-        res.status(200) // .redirect('/create-cachette');
+        res.status(200).redirect('/read-cachette');
     } catch (error) {
         console.error;
         const errorMessage = (error instanceof Error) ? error.message : "Unknown error";
@@ -371,6 +345,8 @@ app.post('/delete-cachette', async (req: any, res: any) => {
 
 // // Middleware pour permettre les méthodes PUT et DELETE dans les formulaires HTML
 app.use(methodOverride('_method'));
+
+// route pour modifier des cachettes
 app.post('/update-cachette', async (req: any, res: any) => {
     try {
         const { nom, description, longitude, latitude, difficulte, mdp } = req.body;
@@ -400,6 +376,7 @@ app.post('/update-cachette', async (req: any, res: any) => {
     }
 });
 
+// Route pour se déconnecter 
 app.get("/logout", (req: any, res: any) => {
     req.session.destroy((err: any) => {  // Ici, `err` est typé en `any`
         if (err) {
@@ -412,6 +389,7 @@ app.get("/logout", (req: any, res: any) => {
 
 
 
+
 const toto = app;
 
-export { app, toto };// export pour les tests
+export { app, toto };// export pour de l'app
