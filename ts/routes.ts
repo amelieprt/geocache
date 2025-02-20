@@ -95,13 +95,6 @@ dotenv.config();
 
 app.use(express.json());
 
-// Servir les fichiers statiques depuis le dossier "views"
-app.use(express.static(path.join(__dirname, 'views')));
-
-// Si aucune route API ne correspond, renvoyer index.html
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'views', 'index.html'));
-});
 
 // route pour servir la page d'accueil avec la carte Leaflet
 app.get('/', (req, res) => {
