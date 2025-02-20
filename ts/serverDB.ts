@@ -11,7 +11,7 @@ const dbname = "ma_nouvelle_bdd";
 // connexion à la base de données
 let db: any
 {
-    let client = new MongoClient(uri);
+    let client = new MongoClient(mongoURI);
     try {
         // Connect to the MongoDB cluster
         client.connect();
