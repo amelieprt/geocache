@@ -161,6 +161,7 @@ app.get('/user-profile', (req: any, res) => {
 });
 
 
+
 app.get('/delete-cachette', (req, res) => {
     res.sendFile(path.join(__dirname, '../views/delete-cachette.html'));
 });
@@ -266,6 +267,15 @@ app.post('/update-user', async (req: any, res: any) => {
 
         await updateUser(username, updatedUser);
         console.log("Utilisateur mis à jour :", username);
+
+        req.session.user = {
+            ...req.session.user,
+            firstName,
+            lastName,
+            email
+        };
+
+        console.log("Session mise à jour :", req.session.user);
 
         res.status(200).redirect('/user-profile');
     } catch (error) {

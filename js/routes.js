@@ -216,6 +216,10 @@ app.post('/update-user', (req, res) => __awaiter(void 0, void 0, void 0, functio
         };
         yield (0, users_1.updateUser)(username, updatedUser);
         console.log("Utilisateur mis à jour :", username);
+        req.session.user = Object.assign(Object.assign({}, req.session.user), { firstName,
+            lastName,
+            email });
+        console.log("Session mise à jour :", req.session.user);
         res.status(200).redirect('/user-profile');
     }
     catch (error) {
