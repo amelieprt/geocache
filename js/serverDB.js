@@ -4,7 +4,7 @@ exports.db = void 0;
 const mongodb_1 = require("mongodb");
 // parametres du serveur de données
 // const uri = "mongodb://localhost:27017";
-const uri = "mongodb://127.0.0.1:27017/ma_nouvelle_bdd";
+const uri = process.env.SCALINGO_MONGO_URL || "mongodb://127.0.0.1:27017/ma_nouvelle_bdd";
 const dbname = "ma_nouvelle_bdd";
 // connexion à la base de données
 let db;
