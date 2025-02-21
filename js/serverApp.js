@@ -6,9 +6,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.port = void 0;
 const routes_1 = require("./routes");
 const path_1 = __importDefault(require("path"));
+const serverDB_js_1 = require("./serverDB.js");
 // parametres du serveur d'applications
 const port = 3000;
 exports.port = port;
+(0, serverDB_js_1.connectDB)();
 routes_1.app.set('view engine', 'ejs');
 routes_1.app.set('views', path_1.default.join(__dirname, '../views'));
 const cors = require("cors");

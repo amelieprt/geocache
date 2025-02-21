@@ -1,11 +1,11 @@
 import express from 'express';
 import { app } from './routes';
 import path from 'path';
-
+import { connectDB } from './serverDB.js';
 
 // parametres du serveur d'applications
 const port = 3000;
-
+connectDB();
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '../views'));
